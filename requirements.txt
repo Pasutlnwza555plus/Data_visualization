@@ -1,4 +1,3 @@
-streamkit	
+streamlit	
 pandas
-re
 plotly
