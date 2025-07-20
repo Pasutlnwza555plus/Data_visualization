@@ -1,0 +1,4 @@
+streamkit	
+pandas
+re
+plotly

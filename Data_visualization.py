@@ -285,3 +285,7 @@ elif menu == "OSC":
             st.error(f"เกิดข้อผิดพลาด: {e}")
     else:
         st.info("กรุณาอัปโหลดทั้ง OSC และ FM ไฟล์ก่อน")
+
+
+
+        #test
