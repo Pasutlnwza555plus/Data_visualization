@@ -206,15 +206,15 @@ elif menu == "MSU":
 elif menu == "OSC":
     st.markdown("### Upload OSC & FM Files")
     # Upload OSC
-    uploaded_optical = st.file_uploader("Upload OSC Optical File", type=["xlsx","csv"], key="osc")
+    uploaded_optical = st.file_uploader("Upload OSC Optical File", type=["xlsx"], key="osc")
     if uploaded_optical:
-        df_optical = pd.read_csv(uploaded_optical)
+        df_optical = pd.read_excel(uploaded_optical)
         st.session_state.osc_optical_data = df_optical
         st.success("OSC Optical File Uploaded")
     # Upload FM
     uploaded_fm = st.file_uploader("Upload FM Alarm File", type=["xlsx"], key="fm")
     if uploaded_fm:
-        df_fm = pd.read_excel(uploaded_fm, engine="openpyxl")
+        df_fm = pd.read_excel(uploaded_fm)
         st.session_state.osc_fm_data = df_fm
         st.success("FM Alarm File Uploaded")
     # ประมวลผลเมื่อทั้งสองไฟล์ถูกอัปโหลดแล้ว
