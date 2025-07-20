@@ -208,7 +208,7 @@ elif menu == "OSC":
     # Upload OSC
     uploaded_optical = st.file_uploader("Upload OSC Optical File", type=["xlsx","csv"], key="osc")
     if uploaded_optical:
-        df_optical = pd.read_csv(uploaded_optical, engine="openpyxl")
+        df_optical = pd.read_csv(uploaded_optical)
         st.session_state.osc_optical_data = df_optical
         st.success("OSC Optical File Uploaded")
     # Upload FM
