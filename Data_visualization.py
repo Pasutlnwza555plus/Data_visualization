@@ -15,7 +15,7 @@ if 'fm_uploaded' not in st.session_state:
 
 
 # Sidebar
-menu = st.sidebar.radio("เลือกกิจกรรม", ["หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping","Loss between Core","Loss between EOL",'OSC'])
+menu = st.sidebar.radio("เลือกกิจกรรม", ["หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping","Loss between Core","Loss between EOL",'OSC','Loss of EOL'])
 if menu == "หน้าแรก":
     st.subheader("DWDM Monitoring Dashboard")
     
