@@ -290,7 +290,7 @@ elif menu == "OSC":
 
 
 
-elif menu == "Loss of EOL"
+elif menu == "Loss of EOL":
     st.markdown("###  Upload EOL File")
     uploaded_EOL = st.file.uploader("Upload EOL File", type=["xlsx"], key="eol")
     if uploaded_optical:
