@@ -295,7 +295,11 @@ elif menu == "Loss of EOL":
     uploaded_EOL = st.file_uploader("Upload EOL File", type=["xlsx"], key="eol")
     if uploaded_EOL:
         df_EOL = pd.read_excel(uploaded_EOL)
-        st.session_state.osc_eol_data = df_EOL
+        st.session_state.eol_data = df_EOL
         st.success("EOL File Uploaded")
-
+    uploaded_EOL_reference = st.file_uploader("Upload EOL Reference file", type=['xlsx'], key='eol ref')
+    if uploaded_EOL_reference:
+        df_EOLref = pd.read.excel(uploaded_EOL_reference)
+        st.session_state.eol_reference_data = df_EOLref
+        st.success('EOL Reference File Uploaded')
         #test
