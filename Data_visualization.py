@@ -292,7 +292,7 @@ elif menu == "OSC":
 
 elif menu == "Loss of EOL":
     st.markdown("###  Upload EOL File")
-    uploaded_EOL = st.file.uploader("Upload EOL File", type=["xlsx"], key="eol")
+    uploaded_EOL = st.file_uploader("Upload EOL File", type=["xlsx"], key="eol")
     if uploaded_optical:
         df_EOL = pd.read_excel(uploaded_EOL)
         st.session_state.osc_eol_data = df_EOL
