@@ -300,6 +300,8 @@ elif menu == "Loss of EOL":
     uploaded_EOL_reference = st.file_uploader("Upload EOL Reference file", type=['xlsx'], key='eol ref')
     if uploaded_EOL_reference:
         df_a = pd.read_excel(uploaded_EOL_reference, sheet_name='Loss between core & EOL')
+        st.session_state.EOLref_data = df_a
+        st.success("EOL Reference File Uploaded")
         st.dataframe(df_a)
 
  #       df_EOLref = pd.read.excel(uploaded_EOL_reference)
