@@ -593,8 +593,11 @@ elif menu == "Loss between EOL":
     if uploaded_reference:
         df_ref = pd.read_excel(uploaded_reference, sheet_name=EOL_sheet_name)
 
-        st.markdown(df_ref.iloc[0])
-        st.markdown(df_ref.iloc[1])
+        col_names_primary   = df_ref.iloc[0].to_list()
+        col_names_secondary = df_ref.iloc[1].to_list()
+
+        st.markdown(col_names_primary[:-4])
+        st.markdown(col_names_secondary[:-4])
 
         # st.session_state.reference_sheet = df_ref
         # st.success("OSC Optical File Uploaded")
