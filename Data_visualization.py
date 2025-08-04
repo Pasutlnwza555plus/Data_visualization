@@ -590,7 +590,13 @@ elif menu == "Loss between EOL":
     EOL_sheet_name = "Loss between core & EOL"
 
     def get_df_recent_rank(df_ref:pd.DataFrame, recent_rank: int = 0) -> pd.DataFrame:
-        header_names = df_ref.columns[-4:].to_list()
+        header_len = len(df_ref.columns)
+        if (header_len - 4*recent_rank < 12):
+            raise Exception("Data not found")
+
+        start = -4 - 4*recent_rank
+        end = header_len if recent_rank == 0 else -4 * recent_rank
+        header_names = df_ref.columns[-4-4*recent_rank:-4*recent_rank].to_list()
 
         return df_ref[header_names]
 
@@ -602,10 +608,13 @@ elif menu == "Loss between EOL":
         
         # col_names_primary   = df_ref.iloc[0].to_list()
         # col_names_secondary = df_ref.iloc[1].to_list()
+        try:
+            df_eol = get_df_recent_rank(df_ref, 1)
 
-        df_eol = get_df_recent_rank(df_ref, 1)
-
-        st.dataframe(df_eol.head(5))
+            st.dataframe(df_eol.head(5))
+        
+        except Exception: 
+            st.markdown("Data not found")
 
         # st.markdown(header_names[-4:])
         # st.markdown(col_names_primary[-4:])
