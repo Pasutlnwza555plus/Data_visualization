@@ -583,7 +583,7 @@ elif menu == "Fiber Flapping":
 
 
 
-# Loss in Core
+# Loss differ for EOL
 elif menu == "Loss between EOL":
     st.markdown("### Please upload files")
 
@@ -647,15 +647,19 @@ elif menu == "Loss between EOL":
 
         st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
         
-        # except Exception: 
-        #     st.markdown("Data not found")
+        st.markdown("""
+            <div stype='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 1px;' />
+            <div style='text-align: center; color: red; font-size: 24px; font-weight: bold;'>
+            🔴 EOL NOT OK
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+            <div style='text-align: center; color: green; font-size: 24px; font-weight: bold;'>
+            🟢 Fiber break occurs
+            </div>
+        """, unsafe_allow_html=True)
 
-        # st.markdown(header_names[-4:])
-        # st.markdown(col_names_primary[-4:])
-        # st.markdown(col_names_secondary[-4:])
-
-        # st.markdown()
-
-        # st.session_state.reference_sheet = df_ref
-        # st.success("OSC Optical File Uploaded")
+        st.session_state.reference_sheet = df_ref
+        st.success("OSC Optical File Uploaded")
     
