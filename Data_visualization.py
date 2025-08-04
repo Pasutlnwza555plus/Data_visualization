@@ -726,8 +726,8 @@ elif menu == "Loss between EOL":
         st.session_state.reference_sheet = df_ref_sheet
         st.success("EOL Reference File Uploaded")
 
-    else:
-        df_ref = st.session_state.get("reference_sheet")
+    df_ref = st.session_state.get("reference_sheet")
+    if df_ref is not None:
         days_count = countDay(df_ref)
         recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
 
