@@ -599,10 +599,10 @@ elif menu == "Loss between EOL":
         header_names = df_ref.columns[start:end_col].to_list()
         eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
 
-        df_eol_ref = pd.to_numeric(df_ref[header_names[0]], downcast="float", errors="coerce")
-        df_date_ref = pd.to_numeric(df_ref[eol_ref_columns[0]], downcast="float", errors="coerce")
+        df_date_ref = pd.to_numeric(df_ref[header_names[0]], downcast="float", errors="coerce")
+        df_eol_ref = pd.to_numeric(df_ref[eol_ref_columns[0]], downcast="float", errors="coerce")
 
-        calculated_diff =  df_date_ref - df_eol_ref - 1
+        calculated_diff = df_date_ref - df_eol_ref - 1
 
         df_eol = pd.concat([df_eol_ref, df_date_ref, calculated_diff], axis="columns")
 
