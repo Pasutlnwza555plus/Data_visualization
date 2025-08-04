@@ -592,7 +592,7 @@ elif menu == "Loss between EOL":
     def get_df_recent_rank(df_ref: pd.DataFrame, recent_rank: int = 0) -> pd.DataFrame:
         header_len = len(df_ref.columns)
         days_count = countDay(df_ref)
-        if (recent_rank > days_count):
+        if (recent_rank >= days_count):
             raise Exception("Data not found")
 
         start = header_len - 4*(recent_rank + 1)
