@@ -24,7 +24,7 @@ if 'fm_uploaded' not in st.session_state:
 
 
 # Sidebar
-menu = st.sidebar.radio("เลือกกิจกรรม", ["หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping","Loss between Core","Loss between EOL"])
+menu = st.sidebar.radio("เลือกกิจกรรม", ["Loss between EOL", "หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping","Loss between Core"])
 if menu == "หน้าแรก":
     st.subheader("DWDM Monitoring Dashboard")
     
@@ -585,4 +585,17 @@ elif menu == "Fiber Flapping":
 
 # Loss in Core
 elif menu == "Loss between EOL":
-    st.header("Please upload files")
+    st.markdown("### Please upload files")
+
+    EOL_sheet_name = "Loss between core & EOL"
+
+    uploaded_reference = st.file_uploader("Upload Data Sheet", type=["xlsx"], key="ref")
+    if uploaded_reference:
+        df_ref = pd.read_excel(uploaded_reference, sheet_name=EOL_sheet_name)
+
+        st.markdown(df_ref.iloc[0])
+        st.markdown(df_ref.iloc[1])
+
+        # st.session_state.reference_sheet = df_ref
+        # st.success("OSC Optical File Uploaded")
+    
