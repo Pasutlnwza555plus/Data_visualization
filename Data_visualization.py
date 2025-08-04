@@ -648,7 +648,7 @@ elif menu == "Loss between EOL":
         st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
         
         st.markdown("""
-            <div stype='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 1px;'> wtf </div<
+            <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 1px;'> wtf </div<
             <div style='text-align: center; color: red; font-size: 24px; font-weight: bold;'>
             🔴 EOL NOT OK
             </div>
