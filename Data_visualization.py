@@ -612,9 +612,10 @@ elif menu == "Loss between EOL":
         df_eol["Loss current - Loss EOL"] = calculated_diff
         df_eol["Remark"] = df_ref[header_names[3]]
 
-        # df_eol = pd.concat([df_ref['140.1'], df_eol_ref, df_date_ref, calculated_diff], axis="columns")
-
-        return df_eol[df_eol['Loss current - Loss EOL'] >= 2]
+        return df_eol
+        
+    def isDiffError(row):
+        return 'background-color: #ff4d4d; color: white' if float(row["Loss current - Loss EOL"]) >= 2 else ''
 
 
     uploaded_reference = st.file_uploader("Upload Data Sheet", type=["xlsx"], key="ref")
@@ -627,7 +628,7 @@ elif menu == "Loss between EOL":
         # try:
         df_eol = get_df_recent_rank(df_ref, 1)
 
-        st.dataframe(df_eol.head(5))
+        st.dataframe(df_eol.style.apply(isDiffError), hide_index=True)
         
         # except Exception: 
         #     st.markdown("Data not found")
