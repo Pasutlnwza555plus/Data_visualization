@@ -583,3 +583,6 @@ elif menu == "Fiber Flapping":
 
 
 
+# Loss in Core
+elif menu == "Loss between EOL":
+    st.header("Please upload files")
