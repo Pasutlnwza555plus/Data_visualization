@@ -648,19 +648,18 @@ elif menu == "Loss between EOL":
         st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
         
         st.markdown("""
-            <div style='display: flex; justify-content: center; align-items: center; gap: 2px'>
-                <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 4px;'></div>
-                <div style='text-align: center; color: ff4d4d; font-size: 24px; font-weight: bold;'>
-                    EOL NOT OK 
+            <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
+                <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
+                    <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 8px;'></div>
+                    <div style='text-align: center; color: ff4d4d; font-size: 24px; font-weight: bold;'>
+                        EOL NOT OK 
+                    </div>
                 </div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-            <div style='display: flex; justify-content: center; align-items: center; gap: 2px'>
-                <div style='background-color: #d6b346; width: 24px; height: 24px; border-radius: 4px;'></div>
-                <div style='text-align: center; color: #d6b346; font-size: 24px; font-weight: bold;'>
-                    Fiber break occurs
+                <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
+                    <div style='background-color: #d6b346; width: 24px; height: 24px; border-radius: 8px;'></div>
+                    <div style='text-align: center; color: #d6b346; font-size: 24px; font-weight: bold;'>
+                        Fiber break occurs
+                    </div>
                 </div>
             </div>
         """, unsafe_allow_html=True)
