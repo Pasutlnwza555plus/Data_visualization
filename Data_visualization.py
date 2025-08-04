@@ -622,7 +622,7 @@ elif menu == "Loss between EOL":
                 color = ['background-color: #ff4d4d; color: white'] * len(row)
 
         except:
-            color = ['background-color: #e7c457; color: white'] * len(row)
+            color = ['background-color: #d6b346; color: white'] * len(row)
         
         return color
 
