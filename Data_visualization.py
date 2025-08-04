@@ -615,7 +615,6 @@ elif menu == "Loss between EOL":
         return df_eol
         
     def isDiffError(row):
-        # st.markdown(row)
         return ['background-color: #ff4d4d; color: white'] * len(row) if float(row["Loss current - Loss EOL"]) >= 2 else ''
 
 
