@@ -24,7 +24,7 @@ if 'fm_uploaded' not in st.session_state:
 
 
 # Sidebar
-menu = st.sidebar.radio("เลือกกิจกรรม", ["หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping","Loss between Core", "Loss between EOL"])
+menu = st.sidebar.radio("เลือกกิจกรรม", ["Loss between Core","หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping","Loss between EOL"])
 if menu == "หน้าแรก":
     st.subheader("DWDM Monitoring Dashboard")
     
@@ -581,6 +581,90 @@ elif menu == "Fiber Flapping":
     else:
         st.info("กรุณาอัปโหลดทั้ง OSC และ FM ไฟล์ก่อน")
 
+# Loss between Core
+elif menu == "Loss between Core":
+    st.markdown("### Please upload files")
+
+    EOL_sheet_name = "Loss between core & EOL"
+
+    def get_df_recent_rank(df_ref: pd.DataFrame, recent_rank: int = 0) -> pd.DataFrame:
+        header_len = len(df_ref.columns)
+        days_count = countDay(df_ref)
+        if (recent_rank >= days_count):
+            raise Exception("Data not found")
+
+        start = header_len - 4*(recent_rank + 1)
+        end_col = header_len - 4*recent_rank
+        header_names = df_ref.columns[start:end_col].to_list()
+        eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
+
+        st.markdown(df_ref.columns[start])
+
+        df_date_ref = pd.to_numeric(df_ref[header_names[0]], downcast="float", errors="coerce")
+        df_eol_ref = pd.to_numeric(df_ref[eol_ref_columns[0]], downcast="float", errors="coerce")
+
+        calculated_diff = df_date_ref - df_eol_ref - 1
+
+        df_eol = pd.DataFrame()
+
+        df_eol["Link Name"] = df_ref['140.1'].iloc[1:]
+        df_eol["EOL(dB)"] = df_eol_ref
+        # df_eol["Current Attenuation(dB)"] = df_ref[header_names[0]]
+        # df_eol["Loss current - Loss EOL"] = calculated_diff
+        df_eol["Loss between core"] = df_ref[]
+        df_eol["Remark"] = df_ref[header_names[3]]
+
+        return df_eol
+        
+    def isDiffError(row):
+        color = [''] * len(row)
+        try: 
+            current_attentuation = float(row["Current Attenuation(dB)"])
+            if float(row["Loss current - Loss EOL"]) >= 2:
+                color = ['background-color: #ff4d4d; color: white'] * len(row)
+
+        except:
+            color = ['background-color: #d6b346; color: white'] * len(row)
+        
+        return color
+    
+    def countDay(df_ref: pd.DataFrame):
+        days = (len(df_ref.columns) - 11) / 4
+
+        return int(days)
+
+
+    uploaded_reference = st.file_uploader("Upload Data Sheet", type=["xlsx"], key="ref")
+    if uploaded_reference:
+        df_ref = pd.read_excel(uploaded_reference, sheet_name=EOL_sheet_name)
+
+        st.session_state.reference_sheet = df_ref
+        st.success("EOL Reference File Uploaded")
+
+    days_count = countDay(df_ref)
+    recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
+
+    df_eol = get_df_recent_rank(df_ref, recent_rank)
+
+    st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
+    
+    st.markdown("""
+        <div style='display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 1rem'>
+            <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
+                <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 8px;'></div>
+                <div style='text-align: center; color: #ff4d4d; font-size: 24px; font-weight: bold;'>
+                    EOL NOT OK 
+                </div>
+            </div>
+            <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
+                <div style='background-color: #d6b346; width: 24px; height: 24px; border-radius: 8px;'></div>
+                <div style='text-align: center; color: #d6b346; font-size: 24px; font-weight: bold;'>
+                    Fiber break occurs
+                </div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    
 
 
 # Loss differ for EOL
@@ -597,7 +681,6 @@ elif menu == "Loss between EOL":
 
         start = header_len - 4*(recent_rank + 1)
         end_col = header_len - 4*recent_rank
-        # st.markdown(f"{start}, {end_col}, {header_len}")
         header_names = df_ref.columns[start:end_col].to_list()
         eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
 
@@ -638,32 +721,35 @@ elif menu == "Loss between EOL":
 
     uploaded_reference = st.file_uploader("Upload Data Sheet", type=["xlsx"], key="ref")
     if uploaded_reference:
-        df_ref = pd.read_excel(uploaded_reference, sheet_name=EOL_sheet_name)
+        df_ref_sheet = pd.read_excel(uploaded_reference, sheet_name=EOL_sheet_name)
 
-        days_count = countDay(df_ref)
-        recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
+        st.session_state.reference_sheet = df_ref_sheet
+        st.success("EOL Reference File Uploaded")
 
-        df_eol = get_df_recent_rank(df_ref, recent_rank)
 
-        st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
-        
-        st.markdown("""
-            <div style='display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 1rem'>
-                <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
-                    <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 8px;'></div>
-                    <div style='text-align: center; color: #ff4d4d; font-size: 24px; font-weight: bold;'>
-                        EOL NOT OK 
-                    </div>
-                </div>
-                <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
-                    <div style='background-color: #d6b346; width: 24px; height: 24px; border-radius: 8px;'></div>
-                    <div style='text-align: center; color: #d6b346; font-size: 24px; font-weight: bold;'>
-                        Fiber break occurs
-                    </div>
+    df_ref = st.session_state.reference_sheet
+    days_count = countDay(df_ref)
+    recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
+
+    df_eol = get_df_recent_rank(df_ref, recent_rank)
+
+    st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
+    
+    st.markdown("""
+        <div style='display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 1rem'>
+            <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
+                <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 8px;'></div>
+                <div style='text-align: center; color: #ff4d4d; font-size: 24px; font-weight: bold;'>
+                    EOL NOT OK 
                 </div>
             </div>
-        """, unsafe_allow_html=True)
+            <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
+                <div style='background-color: #d6b346; width: 24px; height: 24px; border-radius: 8px;'></div>
+                <div style='text-align: center; color: #d6b346; font-size: 24px; font-weight: bold;'>
+                    Fiber break occurs
+                </div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
-        st.session_state.reference_sheet = df_ref
-        st.success("EOL Reference File Uploaded")
     
