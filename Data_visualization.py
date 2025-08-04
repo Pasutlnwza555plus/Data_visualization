@@ -593,7 +593,7 @@ elif menu == "Loss between EOL":
     if uploaded_reference:
         df_ref = pd.read_excel(uploaded_reference, sheet_name=EOL_sheet_name)
 
-        header_names = df_ref.header().to_list()
+        header_names: list[str] = df_ref.columns()
         col_names_primary   = df_ref.iloc[0].to_list()
         col_names_secondary = df_ref.iloc[1].to_list()
 
