@@ -599,7 +599,7 @@ elif menu == "Loss between EOL":
         header_names = df_ref.columns[start:end_col].to_list()
         eol_ref = "EOL + 1dB"
 
-        df_eol = pd.concat([df_ref[eol_ref], df_ref[header_names]])
+        df_eol = pd.concat([df_ref[eol_ref], df_ref[header_names]], axis="columns")
 
         return df_eol
 
