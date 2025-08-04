@@ -597,12 +597,11 @@ elif menu == "Loss between EOL":
 
         start = header_len - 4*(recent_rank + 1)
         end_col = header_len - 4*recent_rank
-        st.markdown(f"{start}, {end_col}, {header_len}")
+        # st.markdown(f"{start}, {end_col}, {header_len}")
         header_names = df_ref.columns[start:end_col].to_list()
         eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
 
         st.markdown(df_ref[header_names[0]])
-
 
         df_date_ref = pd.to_numeric(df_ref[header_names[0]], downcast="float", errors="coerce")
         df_eol_ref = pd.to_numeric(df_ref[eol_ref_columns[0]], downcast="float", errors="coerce")
