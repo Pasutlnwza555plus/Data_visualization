@@ -637,13 +637,11 @@ elif menu == "Loss between EOL":
     if uploaded_reference:
         df_ref = pd.read_excel(uploaded_reference, sheet_name=EOL_sheet_name)
 
-        
-        # col_names_primary   = df_ref.iloc[0].to_list()
-        # col_names_secondary = df_ref.iloc[1].to_list()
-        # try:
-        df_eol = get_df_recent_rank(df_ref, 1)
+        days_count = countDay(df_ref)
+        recent_rank = st.slider(min_value=0, max_value=days_count, value=0)
 
-        st.slider(min_value=0, max_value=)
+        df_eol = get_df_recent_rank(df_ref, recent_rank)
+
         st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
         
         # except Exception: 
