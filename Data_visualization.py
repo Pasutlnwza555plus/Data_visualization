@@ -638,7 +638,7 @@ elif menu == "Loss between EOL":
         df_ref = pd.read_excel(uploaded_reference, sheet_name=EOL_sheet_name)
 
         days_count = countDay(df_ref)
-        recent_rank = st.slider(label="days before", min_value=0, max_value=days_count, value=0)
+        recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
 
         df_eol = get_df_recent_rank(df_ref, recent_rank)
 
