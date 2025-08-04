@@ -589,9 +589,10 @@ elif menu == "Loss between EOL":
 
     EOL_sheet_name = "Loss between core & EOL"
 
-    def get_df_recent_rank(df_ref:pd.DataFrame, recent_rank: int = 0) -> pd.DataFrame:
+    def get_df_recent_rank(df_ref: pd.DataFrame, recent_rank: int = 0) -> pd.DataFrame:
         header_len = len(df_ref.columns)
-        if (header_len - 4*recent_rank < 12):
+        days_count = countDay(df_ref)
+        if (recent_rank < days_count):
             raise Exception("Data not found")
 
         start = -4 - 4*recent_rank
@@ -625,6 +626,11 @@ elif menu == "Loss between EOL":
             color = ['background-color: #d6b346; color: white'] * len(row)
         
         return color
+    
+    def countDay(df_ref: pd.DataFrame):
+        days = (len(df_ref.columns) - 11) / 4
+
+        return int(days)
 
 
     uploaded_reference = st.file_uploader("Upload Data Sheet", type=["xlsx"], key="ref")
@@ -637,6 +643,7 @@ elif menu == "Loss between EOL":
         # try:
         df_eol = get_df_recent_rank(df_ref, 1)
 
+        st.slider(min_value=0, max_value=)
         st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
         
         # except Exception: 
