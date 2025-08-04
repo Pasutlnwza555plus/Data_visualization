@@ -649,7 +649,7 @@ elif menu == "Loss between EOL":
         
         st.markdown("""
             <div display='flex'>
-                <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 1px;' />
+                <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 1px;'></div>
                 <div style='text-align: center; color: red; font-size: 24px; font-weight: bold;'>
                     EOL NOT OK 
                 </div>
