@@ -615,7 +615,7 @@ elif menu == "Loss between EOL":
         return df_eol
         
     def isDiffError(row):
-        st.markdown(row)
+        # st.markdown(row)
         return ['background-color: #ff4d4d; color: white'] * len(row) if float(row["Loss current - Loss EOL"]) >= 2 else ''
 
 
@@ -629,7 +629,7 @@ elif menu == "Loss between EOL":
         # try:
         df_eol = get_df_recent_rank(df_ref, 1)
 
-        st.dataframe(df_eol.style.apply(isDiffError), hide_index=True)
+        st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
         
         # except Exception: 
         #     st.markdown("Data not found")
