@@ -651,7 +651,7 @@ elif menu == "Loss between EOL":
             <div style='display: flex; justify-content: center; align-items: center; gap: 16px'>
                 <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
                     <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 8px;'></div>
-                    <div style='text-align: center; color: ff4d4d; font-size: 24px; font-weight: bold;'>
+                    <div style='text-align: center; color: #ff4d4d; font-size: 24px; font-weight: bold;'>
                         EOL NOT OK 
                     </div>
                 </div>
