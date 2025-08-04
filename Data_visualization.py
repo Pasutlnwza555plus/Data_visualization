@@ -597,7 +597,7 @@ elif menu == "Loss between EOL":
 
         start = header_len - 4*(recent_rank + 1)
         end_col = header_len - 4*recent_rank
-        st.markdown(start, end_col, header_len)
+        st.markdown(f"{start}, {end_col}, {header_len}")
         header_names = df_ref.columns[start:end_col].to_list()
         eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
 
