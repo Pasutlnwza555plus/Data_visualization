@@ -619,10 +619,10 @@ elif menu == "Loss between EOL":
         try: 
             current_attentuation = float(row["Current Attenuation(dB)"])
             if float(row["Loss current - Loss EOL"]) >= 2:
-                color = ['background-color: #ff4d4d; color: #e3e3e3'] * len(row)
+                color = ['background-color: #ff4d4d; color: #aaa'] * len(row)
 
         except:
-            color = ['background-color: #f8d568; color: #e3e3e3'] * len(row)
+            color = ['background-color: #f8d568; color: #aaa'] * len(row)
         
         return color
 
