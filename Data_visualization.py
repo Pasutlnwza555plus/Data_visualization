@@ -595,8 +595,8 @@ elif menu == "Loss between EOL":
         if (recent_rank < days_count):
             raise Exception("Data not found")
 
-        start = -4 - 4*recent_rank
-        end_col = header_len if recent_rank == 0 else -4 * recent_rank
+        start = header_len - 4 - 4*recent_rank
+        end_col = header_len - 4*recent_rank
         header_names = df_ref.columns[start:end_col].to_list()
         eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
 
