@@ -604,9 +604,17 @@ elif menu == "Loss between EOL":
 
         calculated_diff = df_date_ref - df_eol_ref - 1
 
-        df_eol = pd.concat([df_eol_ref, df_date_ref, calculated_diff], axis="columns")
+        df_eol = pd.DataFrame()
 
-        return df_eol
+        df_eol["Link Name"] = df_ref['140.1'].iloc[1:]
+        df_eol["EOL(dB)"] = df_eol_ref
+        df_eol["Current Attenuation(dB)"] = df_date_ref[0]
+        df_eol["Loss current - Loss EOL"] = calculated_diff
+        df_eol["Remark"] = df_date_ref[3]
+
+        # df_eol = pd.concat([df_ref['140.1'], df_eol_ref, df_date_ref, calculated_diff], axis="columns")
+
+        return df_eol[df_eol['Loss current - Loss EOL'] >= 2]
 
 
     uploaded_reference = st.file_uploader("Upload Data Sheet", type=["xlsx"], key="ref")
