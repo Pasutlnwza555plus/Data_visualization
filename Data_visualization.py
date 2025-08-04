@@ -615,7 +615,7 @@ elif menu == "Loss between EOL":
         return df_eol
         
     def isDiffError(row):
-        return ['background-color: #ff4d4d; color: white'] * len(row) if float(row["Loss current - Loss EOL"]) >= 2 else ''
+        return ['background-color: #ff4d4d; color: white'] * len(row) if float(row["Loss current - Loss EOL"]) >= 2 else [''] * len(row)
 
 
     uploaded_reference = st.file_uploader("Upload Data Sheet", type=["xlsx"], key="ref")
