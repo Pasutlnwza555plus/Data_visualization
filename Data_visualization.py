@@ -597,10 +597,9 @@ elif menu == "Loss between EOL":
         start = -4 - 4*recent_rank
         end_col = header_len if recent_rank == 0 else -4 * recent_rank
         header_names = df_ref.columns[start:end_col].to_list()
-        eol_ref = df_ref.iloc[0] == "EOL(dB)"
-        st.dataframe(df_ref.iloc[0]['0'] == "EOL(dB)")
+        eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
 
-        df_eol = pd.concat([df_ref.iloc[eol_ref], df_ref[header_names]], axis="columns")
+        df_eol = pd.concat([df_ref[eol_ref_columns], df_ref[header_names]], axis="columns")
 
         return df_eol
 
