@@ -591,6 +591,7 @@ elif menu == "Loss between EOL":
 
     def get_df_recent_rank(df_ref:pd.DataFrame, recent_rank: int = 0) -> pd.DataFrame:
         header_len = len(df_ref.columns)
+        st.markdown(header_len)
         if (header_len - 4*recent_rank < 12):
             raise Exception("Data not found")
 
