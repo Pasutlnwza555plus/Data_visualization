@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import re
 import plotly.express as px
+from collections import defaultdict
 # ตั้งชื่อไฟล์ชั่วคราว
 UPLOAD_PATH_OPTICAL = "uploaded_optical.xlsx"
 UPLOAD_PATH_FM = "uploaded_fm.xlsx"
@@ -14,17 +15,105 @@ if 'fm_uploaded' not in st.session_state:
     st.session_state.fm_uploaded = False
 
 
+
+
+
+#Line board
+
+
+
+
 # Sidebar
-menu = st.sidebar.radio("เลือกกิจกรรม", ["หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping","Loss between Core","Loss between EOL",'OSC','Loss of EOL'])
+menu = st.sidebar.radio("เลือกกิจกรรม", ["หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping","Loss between Core","Loss between EOL"])
 if menu == "หน้าแรก":
     st.subheader("DWDM Monitoring Dashboard")
     
+if menu == "CPU":
+    st.markdown("### Upload CPU File")
+    # Upload CPU File
+    uploaded_cpu = st.file_uploader("Upload CPU File", type=["xlsx"], key="cpu")
+    if uploaded_cpu:
+        df_cpu = pd.read_excel(uploaded_cpu)
+        st.session_state.cpu_data = df_cpu
+        st.success("CPU file uploaded and stored")
+    # ใช้จาก session ถ้ามีข้อมูล
+    if st.session_state.get("cpu_data") is not None:
+        try:
+            # เตรียม DataFrame
+            df_cpu = st.session_state.cpu_data.copy()
+            df_cpu.columns = df_cpu.columns.str.strip().str.replace(r'\s+', ' ', regex=True).str.replace('\u00a0', ' ')
+            # ตรวจสอบคอลัมน์ที่จำเป็น
+            required_cols = {"ME", "Measure Object", "CPU utilization ratio"}
+            if not required_cols.issubset(df_cpu.columns):
+                st.error(f"CPU file must contain columns: {', '.join(required_cols)}")
+                st.stop()
+            # สร้าง Mapping Format
+            df_cpu["Mapping Format"] = df_cpu["ME"].astype(str).str.strip() + df_cpu["Measure Object"].astype(str).str.strip()
+            # โหลด Reference File
+            df_ref = pd.read_excel("data/CPU.xlsx")
+            df_ref.columns = df_ref.columns.astype(str)\
+                            .str.encode('ascii', 'ignore').str.decode('utf-8')\
+                                .str.replace(r'\s+', ' ', regex=True)\
+                                .str.strip()
+            # ตรวจสอบคอลัมน์ใน reference
+            required_ref_cols = {"Mapping", "Maximum threshold", "Minimum threshold"}
+            if not required_ref_cols.issubset(df_ref.columns):
+                st.error(f"Reference file must contain columns: {', '.join(required_ref_cols)}")
+                st.stop()
+            df_ref["Mapping"] = df_ref["Mapping"].astype(str).str.strip()
+            # Merge ข้อมูล
+            df_merged = pd.merge(
+                df_cpu,
+                df_ref[["Site Name", "Mapping", "Maximum threshold", "Minimum threshold"]],
+                left_on="Mapping Format",
+                right_on="Mapping",
+                how="inner"
+            )
+            # ตรวจสอบผลลัพธ์
+            if not df_merged.empty:
+                df_result = df_merged[[
+                    "Site Name", "ME", "Measure Object", "Maximum threshold", "Minimum threshold","CPU utilization ratio"
+                ]]
+                # ฟังก์ชันตรวจไม่ผ่าน
+                def is_not_ok(row):
+                    return row["CPU utilization ratio"] > row["Maximum threshold"] or row["CPU utilization ratio"] < row["Minimum threshold"]
+                highlight_mask = df_result.apply(is_not_ok, axis=1)
+                # ฟังก์ชันไฮไลต์สีแดงเฉพาะ column
+                def highlight_red_single_column(x):
+                    return ['background-color: #ff4d4d; color: white' if highlight_mask.iloc[i] else '' for i in range(len(x))]
+                # สร้าง styled table
+                styled_df = df_result.style.apply(
+                    highlight_red_single_column,
+                    subset=["CPU utilization ratio"]
+                ).format({
+                    "CPU utilization ratio": "{:.2f}",
+                    "Maximum threshold": "{:.2f}",
+                    "Minimum threshold": "{:.2f}"
+                })
+                st.markdown("### CPU Performance")
+                st.dataframe(styled_df, use_container_width=True)
+                # แสดงผลสรุป
+                if highlight_mask.any():
+                    st.markdown("""
+<div style='text-align: center; color: red; font-size: 24px; font-weight: bold;'>
+CPU NOT OK
+</div>
+""", unsafe_allow_html=True)
+                else:
+                    st.markdown("""
+<div style='text-align: center; color: green; font-size: 24px; font-weight: bold;'>
+CPU OK
+</div>
+""", unsafe_allow_html=True)
+            else:
+                st.warning("ไม่พบ Mapping ที่ตรงกันระหว่าง CPU file และ reference")
+        except Exception as e:
+            st.error(f"เกิดข้อผิดพลาดระหว่างการประมวลผล: {e}")
+    else:
+        st.info("กรุณาอัปโหลด CPU file ก่อนเพื่อเริ่มการวิเคราะห์")
 
-
-
-
-if menu == "FAN":
-    st.markdown("###  Upload FAN File ")        
+elif menu == "FAN":
+    st.markdown("### 📂 Upload FAN File ")        
     uploaded_fan = st.file_uploader(" Upload FAN File", type=["xlsx"], key="fan")
     # ถ้าอัปโหลดใหม่ ให้โหลดและบันทึกใน session
     if uploaded_fan:
@@ -32,7 +121,7 @@ if menu == "FAN":
         st.session_state.fan_data = df_fan  # เก็บลง session
         st.success("FAN file uploaded and stored")
 
-    # ใช้ข้อมูลจาก session หากมี 
+    # ใช้ข้อมูลจาก session หากมี
     if st.session_state.get("fan_data") is not None:
 
         df_fan = st.session_state.fan_data.copy()
@@ -68,7 +157,7 @@ if menu == "FAN":
                     "Begin Time", "End Time", "Site Name", "ME", "Measure Object",
                     "Maximum threshold", "Minimun threshold", "Value of Fan Rotate Speed(Rps)"
                 ]]
-                #  ตรวจสอบ FAN Performance โดยไม่ใส่ "Not OK" แต่เน้นสีแดง
+                # 🔍 ตรวจสอบ FAN Performance โดยไม่ใส่ "Not OK" แต่เน้นสีแดง
                 # สร้างคอลัมน์ flag ว่าแถวนี้เข้าเงื่อนไข Not OK หรือไม่
                 #  สร้าง mask แยกสำหรับแถวที่ต้องไฮไลต์ โดยไม่ใส่ลงใน DataFrame
                 def is_not_ok(row):
@@ -121,11 +210,8 @@ FAN OK
     else:
         st.info("Please upload FAN ratio file")
 
-
-
-
 elif menu == "MSU":
-    st.markdown("###  Upload MSU File")
+    st.markdown("### 📂 Upload MSU File")
     uploaded_msu = st.file_uploader("Upload MSU File", type=["xlsx"], key="msu")
     if uploaded_msu:
         df_msu = pd.read_excel(uploaded_msu)
@@ -138,7 +224,7 @@ elif menu == "MSU":
             # ตรวจสอบคอลัมน์ที่ต้องมี
             required_cols = {"ME", "Measure Object", "Laser Bias Current(mA)"}
             if not required_cols.issubset(df_msu.columns):
-                st.error(f" MSU file must contain columns: {', '.join(required_cols)}")
+                st.error(f"❗ MSU file must contain columns: {', '.join(required_cols)}")
                 st.stop()
             # สร้าง Mapping Format
             df_msu["Mapping Format"] = df_msu["ME"].astype(str).str.strip() + df_msu["Measure Object"].astype(str).str.strip()
@@ -148,7 +234,7 @@ elif menu == "MSU":
             # ตรวจสอบคอลัมน์ใน reference
             required_ref_cols = {"Mapping", "Maximum threshold"}
             if not required_ref_cols.issubset(df_ref.columns):
-                st.error(f" Reference file must contain columns: {', '.join(required_ref_cols)}")
+                st.error(f"❗ Reference file must contain columns: {', '.join(required_ref_cols)}")
                 st.stop()
             df_ref["Mapping"] = df_ref["Mapping"].astype(str).str.strip()
             # Merge ข้อมูล
@@ -184,13 +270,13 @@ elif menu == "MSU":
                 if highlight_mask.any():
                     st.markdown("""
 <div style='text-align: center; color: red; font-size: 24px; font-weight: bold;'>
- MSU NOT OK
+🔴 MSU NOT OK
 </div>
 """, unsafe_allow_html=True)
                 else:
                     st.markdown("""
 <div style='text-align: center; color: green; font-size: 24px; font-weight: bold;'>
- MSU OK
+🟢 MSU OK
 </div>
 """, unsafe_allow_html=True)
             else:
@@ -199,11 +285,220 @@ elif menu == "MSU":
             st.error(f"เกิดข้อผิดพลาดระหว่างการประมวลผล: {e}")
     else:
         st.info("กรุณาอัปโหลด MSU file ก่อนเพื่อเริ่มการวิเคราะห์")
-   
 
 
 
-elif menu == "OSC":
+elif menu == "Line board":
+    st.markdown("### Upload Line cards performance File")
+    uploaded_line = st.file_uploader("Upload Line cards File", type=["xlsx"], key="line")
+    uploaded_log = st.file_uploader("Upload WASON Log", type=["txt"], key="log")
+    def get_preset_map(log_text):
+        import re
+        lines = log_text.splitlines()
+        ipmap = {
+            "30.10.90.6": "HYI-4",
+            "30.10.10.6": "Jasmine",
+            "30.10.30.6": "Phu Nga",
+            "30.10.50.6": "SNI-POI",
+            "30.10.70.6": "NKS",
+            "30.10.110.6": "PKT"
+        }
+        pmap = {}
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            m = re.search(r"\[CALL\s+\d+\]\s+\[([\d.]+)\s+[\d.]+\s+(\d+)\]", line)
+            if m:
+                ip = m.group(1).strip()
+                cid = m.group(2).strip().lstrip("0")
+                site = ipmap.get(ip, "Unknown")
+                key = f"{cid} ({site})"
+                j = i + 1
+                while j < len(lines):
+                    if "[CALL" in lines[j]:
+                        break
+                    if "[PreRout]:" in lines[j]:
+                        k = j + 1
+                        while k < len(lines):
+                            if "[CALL" in lines[k]:
+                                break
+                            m2 = re.search(r"--(\d+)--WORK--\(USED\)--\(SUCCESS\)", lines[k])
+                            if m2:
+                                preset = m2.group(1).strip()
+                                pmap[key] = preset
+                                break
+                            k += 1
+                        break
+                    j += 1
+            i += 1
+        return pmap
+    if uploaded_log:
+        log_text = uploaded_log.read().decode("utf-8", errors="ignore")
+        pmap = get_preset_map(log_text)
+    else:
+        pmap = {}
+    if uploaded_line:
+        df_line = pd.read_excel(uploaded_line)
+        st.session_state.line_data = df_line
+        st.success("Line cards file uploaded and stored")
+    if uploaded_log and st.session_state.get("line_data") is not None:
+        try:
+            df_line = st.session_state.line_data.copy()
+            df_line.columns = df_line.columns.str.strip().str.replace(r'\s+', ' ', regex=True).str.replace('\u00a0', ' ')
+            df_ref = pd.read_excel("data/Line.xlsx")
+            df_ref.columns = df_ref.columns.astype(str)\
+                .str.encode('ascii', 'ignore').str.decode('utf-8')\
+                .str.replace(r'\s+', ' ', regex=True).str.strip()
+            # ✅ เพิ่มลำดับไว้ใช้เรียงภายหลัง
+            df_ref["order"] = range(len(df_ref))
+            required_cols = {"ME", "Measure Object", "Instant BER After FEC", "Input Optical Power(dBm)", "Output Optical Power (dBm)"}
+            if not required_cols.issubset(df_line.columns):
+                st.error(f"Line cards file must contain columns: {', '.join(required_cols)}")
+                st.stop()
+            df_line["Mapping Format"] = df_line["ME"].astype(str).str.strip() + df_line["Measure Object"].astype(str).str.strip()
+            df_ref["Mapping"] = df_ref["Mapping"].astype(str).str.strip()
+            col_out = "Output Optical Power (dBm)"
+            col_in = "Input Optical Power(dBm)"
+            col_max_out = "Maximum threshold(out)"
+            col_min_out = "Minimum threshold(out)"
+            col_max_in = "Maximum threshold(in)"
+            col_min_in = "Minimum threshold(in)"
+            df_merged = pd.merge(
+                df_line,
+                df_ref[["Site Name", "Mapping", "Call ID", "Threshold", col_max_out, col_min_out, col_max_in, col_min_in, "Route", "order"]],
+                left_on="Mapping Format",
+                right_on="Mapping",
+                how="inner"
+            )
+            if not df_merged.empty:
+                df_result = df_merged[[ 
+                    "Site Name", "ME", "Mapping", "Call ID", "Measure Object", "Threshold", "Instant BER After FEC",
+                    col_max_out, col_min_out, col_out,
+                    col_max_in, col_min_in, col_in, "Route", "order"
+                ]]
+                df_result["Call ID"] = df_result["Call ID"].astype(str).str.strip().str.lstrip("0")
+                df_result["Route"] = df_result.apply(
+                    lambda r: f"Preset {pmap[r['Call ID']]}" if r['Call ID'] in pmap else r["Route"],
+                    axis=1
+                )
+                # ✅ เรียงตามลำดับจาก ref แล้วลบคอลัมน์ order ทิ้ง
+                df_result = df_result.sort_values("order").drop(columns=["order"]).reset_index(drop=True)
+               
+                styled_df = df_result.style
+                # ✅ ไฮไลต์ช่องที่เป็น Preset ด้วยสีน้ำเงิน
+                styled_df = styled_df.apply(
+                    lambda col: [
+                        'background-color: lightblue; color: black'
+                        if str(row["Route"]).startswith("Preset") else ''
+                        for _, row in df_result.iterrows()
+                    ],
+                    subset=["Route"]
+                )
+                # ✅ ไฮไลต์ cell สีแดงเข้ม
+                def highlight_critical_cells(val, colname, row):
+                    if colname == "Instant BER After FEC":
+                        try:
+                            return 'background-color: #ff4d4d; color: white' if float(val) > 0 else ''
+                        except:
+                            return ''
+                    elif colname == col_out:
+                        try:
+                            return 'background-color: #ff4d4d; color: white' if (val > row[col_max_out] or val < row[col_min_out]) else ''
+                        except:
+                            return ''
+                    elif colname == col_in:
+                        try:
+                            return 'background-color: #ff4d4d; color: white' if (val > row[col_max_in] or val < row[col_min_in]) else ''
+                        except:
+                            return ''
+                    return ''
+                for colname in ["Instant BER After FEC", col_out, col_in]:
+                    styled_df = styled_df.apply(
+                        lambda col: [
+                            highlight_critical_cells(row[colname], colname, row)
+                            for _, row in df_result.iterrows()
+                        ],
+                        subset=[colname]
+                    )
+                # ✅ ไฮไลต์ cell สีแดงเข้ม
+                def highlight_critical_cells(val, colname, row):
+                    if colname == "Instant BER After FEC":
+                        try:
+                            return 'background-color: #ff4d4d; color: white' if float(val) > 0 else ''
+                        except:
+                            return ''
+                    elif colname == col_out:
+                        try:
+                            return 'background-color: #ff4d4d; color: white' if (val > row[col_max_out] or val < row[col_min_out]) else ''
+                        except:
+                            return ''
+                    elif colname == col_in:
+                        try:
+                            return 'background-color: #ff4d4d; color: white' if (val > row[col_max_in] or val < row[col_min_in]) else ''
+                        except:
+                            return ''
+                    return ''
+                # ✅ Apply cell-level red highlight (3 columns)
+                for colname in ["Instant BER After FEC", col_out, col_in]:
+                    styled_df = styled_df.apply(
+                        lambda col: [
+                            highlight_critical_cells(row[colname], colname, row)
+                            for _, row in df_result.iterrows()
+                        ],
+                        subset=[colname]
+                    )
+                # ✅ ไฮไลต์แถวสีเทาอ่อน ถ้ามี cell critical
+                def highlight_fail_rows(row):
+                    fail = (
+                        row["Instant BER After FEC"] > 0 or
+                        row[col_out] > row[col_max_out] or row[col_out] < row[col_min_out] or
+                        row[col_in] > row[col_max_in] or row[col_in] < row[col_min_in]
+                    )
+                    return ['background-color: #f2f2f2; color: black' if fail else '' for _ in row]
+                styled_df = styled_df.apply(highlight_fail_rows, axis=1)
+                # ✅ ไฮไลต์ Preset ด้วยสีน้ำเงิน
+                styled_df = styled_df.apply(
+                    lambda col: [
+                        'background-color: lightblue; color: black'
+                        if str(row["Route"]).startswith("Preset") else ''
+                        for _, row in df_result.iterrows()
+                    ],
+                    subset=["Route"]
+                )
+                # ✅ จัดรูปแบบตัวเลข
+                styled_df = styled_df.format({
+                    col_out: "{:.2f}",
+                    col_in: "{:.2f}",
+                    "Instant BER After FEC": "{:.1e}"
+                })
+                st.markdown("### Line Performance")
+                st.dataframe(styled_df, use_container_width=True)
+                # ✅ ตรวจแถวที่ผิดเพื่อแสดงผล OK / NOT OK
+                failed_rows = df_result.apply(
+                    lambda row: (
+                        row[col_out] > row[col_max_out] or row[col_out] < row[col_min_out] or
+                        row[col_in] > row[col_max_in] or row[col_in] < row[col_min_in] or
+                        row["Instant BER After FEC"] > 0
+                    ),
+                    axis=1
+                )
+                if failed_rows.any():
+                    st.markdown("<div style='text-align: center; color: red; font-size: 24px; font-weight: bold;'>Line NOT OK</div>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<div style='text-align: center; color: green; font-size: 24px; font-weight: bold;'>Line OK</div>", unsafe_allow_html=True)
+            else:
+                st.warning("ไม่พบ Mapping ที่ตรงกันระหว่าง Line file และ reference")
+        except Exception as e:
+            st.error(f"เกิดข้อผิดพลาดระหว่างการประมวลผล: {e}")
+    else:
+        st.info("กรุณาอัปโหลด Line file ก่อน")
+
+
+
+
+
+
+elif menu == "Fiber Flapping":
     st.markdown("### Upload OSC & FM Files")
     # Upload OSC
     uploaded_optical = st.file_uploader("Upload OSC Optical File", type=["xlsx"], key="osc")
@@ -288,27 +583,3 @@ elif menu == "OSC":
 
 
 
-
-
-elif menu == "Loss of EOL":
-    st.markdown("###  Upload EOL File")
-    uploaded_EOL = st.file_uploader("Upload EOL File", type=["xlsx"], key="eol")
-    if uploaded_EOL:
-        df_EOL = pd.read_excel(uploaded_EOL)
-        st.session_state.eol_data = df_EOL
-        st.success("EOL File Uploaded")
-    uploaded_EOL_reference = st.file_uploader("Upload EOL Reference file", type=['xlsx'], key='eol ref')
-    if uploaded_EOL_reference:
-        df_a = pd.read_excel(uploaded_EOL_reference, sheet_name='Loss between core & EOL')
-        st.session_state.EOLref_data = df_a
-        st.success("EOL Reference File Uploaded")
-        st.dataframe(df_a)
-
- #       df_EOLref = pd.read.excel(uploaded_EOL_reference)
- #       st.session_state.eol_reference_data = df_EOLref
- #       st.success('EOL Reference File Uploaded')
-#    if 'eol_data' in st.session_state and 'eol_reference' in st.session_state:
-#        df_EOl = st.session_state.eol_rederenec_data.copy()
-#        df_EOl.columns = df_EOL.columns.str.strip()
-        
-        #test
