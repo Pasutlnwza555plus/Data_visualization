@@ -599,7 +599,7 @@ elif menu == "Loss between EOL":
 
         df_eol = df_ref[header_names]
 
-        st.markdown(df_eol.iloc[0][-4:])
+        st.markdown(df_eol.iloc[0])
 
         # st.markdown(header_names[-4:])
         # st.markdown(col_names_primary[-4:])
