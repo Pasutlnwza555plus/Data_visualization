@@ -595,10 +595,13 @@ elif menu == "Loss between EOL":
             raise Exception("Data not found")
 
         start = -4 - 4*recent_rank
-        end = header_len if recent_rank == 0 else -4 * recent_rank
-        header_names = df_ref.columns[-4-4*recent_rank:-4*recent_rank].to_list()
+        end_col = header_len if recent_rank == 0 else -4 * recent_rank
+        header_names = df_ref.columns[start:end_col].to_list()
+        eol_ref = "EOL + 1dB"
 
-        return df_ref[header_names]
+        df_eol = pd.concat([df_ref[eol_ref], df_ref[header_names]])
+
+        return df_eol
 
 
     uploaded_reference = st.file_uploader("Upload Data Sheet", type=["xlsx"], key="ref")
