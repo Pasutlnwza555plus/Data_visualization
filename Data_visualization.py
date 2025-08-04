@@ -648,7 +648,7 @@ elif menu == "Loss between EOL":
         st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
         
         st.markdown("""
-            <div style='display: flex; justify-content: center; gap: 2px'>
+            <div style='display: flex; justify-content: center; align-item: center; gap: 2px'>
                 <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 2px;'></div>
                 <div style='text-align: center; color: ff4d4d; font-size: 24px; font-weight: bold;'>
                     EOL NOT OK 
@@ -657,7 +657,7 @@ elif menu == "Loss between EOL":
         """, unsafe_allow_html=True)
         
         st.markdown("""
-            <div style='display: flex; justify-content: center; gap: 2px'>
+            <div style='display: flex; justify-content: center; align-item: center; gap: 2px'>
                 <div style='background-color: #d6b346; width: 24px; height: 24px; border-radius: 2px;'></div>
                 <div style='text-align: center; color: #d6b346; font-size: 24px; font-weight: bold;'>
                     Fiber break occurs
