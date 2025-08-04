@@ -589,15 +589,21 @@ elif menu == "Loss between EOL":
 
     EOL_sheet_name = "Loss between core & EOL"
 
+    def get_df_recent_rank(df_ref:pd.DataFrame, recent_rank: int = 0) -> pd.DataFrame:
+        header_names = df_ref.columns[-4:].to_list()
+
+        return df_ref[header_names]
+
+
     uploaded_reference = st.file_uploader("Upload Data Sheet", type=["xlsx"], key="ref")
     if uploaded_reference:
         df_ref = pd.read_excel(uploaded_reference, sheet_name=EOL_sheet_name)
 
-        header_names = df_ref.columns[-4:].to_list()
-        col_names_primary   = df_ref.iloc[0].to_list()
-        col_names_secondary = df_ref.iloc[1].to_list()
+        
+        # col_names_primary   = df_ref.iloc[0].to_list()
+        # col_names_secondary = df_ref.iloc[1].to_list()
 
-        df_eol = df_ref[header_names]
+        df_eol = get_df_recent_rank(df_ref, 1)
 
         st.dataframe(df_eol.head(5))
 
