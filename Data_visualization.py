@@ -747,7 +747,7 @@ elif menu == "Loss between EOL":
     def extract_raw_data(df_raw_data: pd.DataFrame) -> pd.DataFrame:
         df_atten = pd.DataFrame()
 
-        df_raw_data.columns = df_raw_data.columns.str.strip()
+        # df_raw_data.columns = df_raw_data.columns.str.strip()
 
         source_port_col = df_raw_data["Source Port"]
         sink_port_col = df_raw_data["Sink Port"]
