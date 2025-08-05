@@ -733,6 +733,13 @@ elif menu == "Loss between EOL":
 
         return int(days)
     
+    def is_castable_to_float(x) -> bool:
+        try:
+            float(x)
+            return True
+        except (ValueError, TypeError):
+            return False
+    
     def extract_eol_ref(df_ref: pd.DataFrame) -> pd.DataFrame:
         df_eol_ref = pd.DataFrame()
 
@@ -755,8 +762,9 @@ elif menu == "Loss between EOL":
         df_atten["Current Attenuation(dB)"] = df_raw_data["Optical Attenuation (dB)"]
 
         df_atten["Remark"] = df_atten["Current Attenuation(dB)"].apply(
-            lambda x: "" if pd.notna(x) and str(x).strip() != "" else "Fiber Break"
+            lambda x: "" if is_castable_to_float(x) else "Fiber Break"
         )
+
 
         return df_atten
     
