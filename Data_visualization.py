@@ -670,6 +670,24 @@ elif menu == "Fiber Flapping":
 elif menu == "Loss between EOL":
     st.markdown("### Please upload files")
 
+    def draw_color_legend():
+        st.markdown("""
+            <div style='display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 1rem'>
+                <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
+                    <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 8px;'></div>
+                    <div style='text-align: center; color: #ff4d4d; font-size: 24px; font-weight: bold;'>
+                        EOL NOT OK 
+                    </div>
+                </div>
+                <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
+                    <div style='background-color: #d6b346; width: 24px; height: 24px; border-radius: 8px;'></div>
+                    <div style='text-align: center; color: #d6b346; font-size: 24px; font-weight: bold;'>
+                        Fiber break occurs
+                    </div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
     def get_df_recent_rank(df_ref: pd.DataFrame, recent_rank: int = 0) -> pd.DataFrame:
         header_len = len(df_ref.columns)
         days_count = countDay(df_ref)
@@ -748,28 +766,17 @@ elif menu == "Loss between EOL":
 
     df_ref = st.session_state.get("reference_sheet")
     if df_ref is not None:
-        days_count = countDay(df_ref)
-        recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
+        # days_count = countDay(df_ref)
+        # recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
 
-        df_eol = get_df_recent_rank(df_ref, recent_rank)
+        # df_eol = get_df_recent_rank(df_ref, recent_rank)
 
-        st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
+        # st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
+
+        df_eol_ref = extract_eol_ref(df_ref)
+
+        st.dataframe(df_eol_ref)
         
-        st.markdown("""
-            <div style='display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 1rem'>
-                <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
-                    <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 8px;'></div>
-                    <div style='text-align: center; color: #ff4d4d; font-size: 24px; font-weight: bold;'>
-                        EOL NOT OK 
-                    </div>
-                </div>
-                <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
-                    <div style='background-color: #d6b346; width: 24px; height: 24px; border-radius: 8px;'></div>
-                    <div style='text-align: center; color: #d6b346; font-size: 24px; font-weight: bold;'>
-                        Fiber break occurs
-                    </div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
+        draw_color_legend()
 
     
