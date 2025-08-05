@@ -720,7 +720,7 @@ elif menu == "Loss between EOL":
         color = [''] * len(row)
         if float(row["Loss current - Loss EOL"]) >= 2:
             color = ['background-color: #ff4d4d; color: white'] * len(row)
-        elif row["Remark"] is None or row["Remark"].strip() == "":
+        elif row["Remark"] is not None or row["Remark"].strip() != "":
             color = ['background-color: #d6b346; color: white'] * len(row)
         
         return color
