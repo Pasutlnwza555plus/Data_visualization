@@ -767,7 +767,7 @@ elif menu == "Loss between EOL":
 
         return df_atten
     
-    def calculate_eol_diff(df_eol: pd.DataFrame) -> pd.DateFrame:
+    def calculate_eol_diff(df_eol: pd.DataFrame) -> pd.DataFrame:
         df_eol_diff = df_eol.copy()
 
         current_atten_col = pd.to_numeric(df_eol["Current Attenuation(dB)"], downcast="float", errors="coerce")
@@ -817,7 +817,7 @@ elif menu == "Loss between EOL":
         recent_rank = 0
 
         joined_df = df_eol_ref.join(df_atten[recent_rank].set_index("Link Name"), on="Link Name")
-        df_result = calculate_eol_diff(join_df)
+        df_result = calculate_eol_diff(joined_df)
 
         st.dataframe(df_result)
 
