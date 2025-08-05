@@ -781,7 +781,7 @@ elif menu == "Loss between EOL":
 
     df_ref = st.session_state.get("reference_sheet")
     df_raw_data_list = st.session_state.get("raw_data")
-    if df_ref is not None and df_raw_data is not None:
+    if df_ref is not None and df_raw_data_list is not None:
         # days_count = countDay(df_ref)
         # recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
 
