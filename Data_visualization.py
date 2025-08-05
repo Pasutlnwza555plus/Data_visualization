@@ -744,6 +744,21 @@ elif menu == "Loss between EOL":
 
         return df_eol_ref
     
+    def extract_raw_data(df_raw_data: pd.DataFrame) -> pd.DataFrame:
+        df_atten = pd.DataFrame()
+
+        source_port_col = df_raw_data["Source Port"]
+        sink_port_col = df_raw_data["Sink Port"]
+        df_atten["Link Name"] = source_port_col + "_" + sink_port_col
+        df_atten["Current Attenuation(dB)"] = df_raw_data["Optical Attenuation (dB)"]
+
+        try:
+            df_atten["Remark"] = "" if float(df_raw_data["Optical Attenuation (dB)"]) else "Fiber Break"
+        except:
+            df_atten["Remark"] = "Fiber Break"
+
+        return df_atten
+    
     if st.session_state.get("raw_data") is None:
         st.session_state.raw_data = []
     else:
@@ -765,7 +780,8 @@ elif menu == "Loss between EOL":
         st.success("Raw Data File Uploaded")
 
     df_ref = st.session_state.get("reference_sheet")
-    if df_ref is not None:
+    df_raw_data = st.session_state.get("raw_data")
+    if df_ref is not None and df_raw_data is not None:
         # days_count = countDay(df_ref)
         # recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
 
@@ -774,9 +790,12 @@ elif menu == "Loss between EOL":
         # st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
 
         df_eol_ref = extract_eol_ref(df_ref)
+        df_atten = extract_raw_data(df_raw_data)
 
         st.dataframe(df_eol_ref)
         
         draw_color_legend()
+    else:
+        st.markdown("fuk U, data error")
 
     
