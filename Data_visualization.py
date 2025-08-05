@@ -24,7 +24,7 @@ if 'fm_uploaded' not in st.session_state:
 
 
 # Sidebar
-menu = st.sidebar.radio("เลือกกิจกรรม", ["Loss between Core","หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping","Loss between EOL"])
+menu = st.sidebar.radio("เลือกกิจกรรม", ["Loss between EOL","Loss between Core","หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping"])
 if menu == "หน้าแรก":
     st.subheader("DWDM Monitoring Dashboard")
     
@@ -726,7 +726,7 @@ elif menu == "Loss between EOL":
 
         return df_eol_ref
     
-    if st.session_state.raw_data is None:
+    if st.session_state.get("raw_data") is None:
         st.session_state.raw_data = []
     else:
         st.markdown(len(st.session_state.raw_data))
