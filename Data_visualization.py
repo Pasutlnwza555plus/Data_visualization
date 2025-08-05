@@ -777,12 +777,9 @@ elif menu == "Loss between EOL":
 
         df_eol_diff["Loss current - Loss EOL"] = calculated_diff
 
-        return df_eol_diff
-    
-    # if st.session_state.get("raw_data") is None:
-    #     st.session_state.raw_data = []
-    # else:
-    #     st.markdown(len(st.session_state.raw_data))
+        ordered_column_names = ["Link Name", "EOL(dB)", "Current Attenuation(dB)", "Loss current - Loss EOL", "Remark"]
+
+        return df_eol_diff[ordered_column_names]
 
     EOL_sheet_name = "Loss between core & EOL"
     uploaded_reference = st.file_uploader("Upload Reference Sheet", type=["xlsx"], key="ref")
@@ -802,12 +799,6 @@ elif menu == "Loss between EOL":
     df_ref = st.session_state.get("reference_sheet")
     df_raw_data = st.session_state.get("raw_data")
     if df_ref is not None and df_raw_data is not None:
-        # days_count = countDay(df_ref)
-
-        # df_eol = get_df_recent_rank(df_ref, recent_rank)
-
-        # st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
-
         df_eol_ref = extract_eol_ref(df_ref)
         df_atten   = extract_raw_data(df_raw_data)
 
