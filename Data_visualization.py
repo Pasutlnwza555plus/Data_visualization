@@ -581,7 +581,7 @@ elif menu == "Fiber Flapping":
     else:
         st.info("กรุณาอัปโหลดทั้ง OSC และ FM ไฟล์ก่อน")
 
-# Loss between Core
+# region Loss between Core
 # elif menu == "Loss between Core":
 #     st.markdown("### Please upload files")
 
@@ -666,12 +666,9 @@ elif menu == "Fiber Flapping":
 #     """, unsafe_allow_html=True)
     
 
-
-# Loss differ for EOL
+# region Loss differ for EOL
 elif menu == "Loss between EOL":
     st.markdown("### Please upload files")
-
-    EOL_sheet_name = "Loss between core & EOL"
 
     def get_df_recent_rank(df_ref: pd.DataFrame, recent_rank: int = 0) -> pd.DataFrame:
         header_len = len(df_ref.columns)
@@ -717,14 +714,37 @@ elif menu == "Loss between EOL":
         days = (len(df_ref.columns) - 11) / 4
 
         return int(days)
+    
+    def extract_eol_ref(df_ref: pd.DataFrame) -> pd.DataFrame:
+        df_eol_ref = pd.DataFrame()
 
+        eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
+        eol_ref_columns_float = pd.to_numeric(df_ref[eol_ref_columns[0]], downcast="float", errors="coerce")
 
-    uploaded_reference = st.file_uploader("Upload Data Sheet", type=["xlsx"], key="ref")
+        df_eol_ref["Link Name"] = df_ref['140.1'].iloc[1:]
+        df_eol_ref["EOL(dB)"] = eol_ref_columns_float
+
+        return df_eol_ref
+    
+    if st.session_state.raw_data is None:
+        st.session_state.raw_data = []
+    else:
+        st.markdown(len(st.session_state.raw_data))
+
+    EOL_sheet_name = "Loss between core & EOL"
+    uploaded_reference = st.file_uploader("Upload Reference Sheet", type=["xlsx"], key="ref")
     if uploaded_reference:
         df_ref_sheet = pd.read_excel(uploaded_reference, sheet_name=EOL_sheet_name)
 
         st.session_state.reference_sheet = df_ref_sheet
-        st.success("EOL Reference File Uploaded")
+        st.success("Reference Sheet File Uploaded")
+
+    uploaded_raw_eol = st.file_uploader("Upload Raw EOL", type=["xlsx"], key="ref")
+    if uploaded_raw_eol:
+        df_raw_data = pd.read_excel(uploaded_raw_eol)
+
+        st.session_state.reference_sheet.append(df_raw_data)
+        st.success("Raw Data File Uploaded")
 
     df_ref = st.session_state.get("reference_sheet")
     if df_ref is not None:
