@@ -739,7 +739,7 @@ elif menu == "Loss between EOL":
         st.session_state.reference_sheet = df_ref_sheet
         st.success("Reference Sheet File Uploaded")
 
-    uploaded_raw_eol = st.file_uploader("Upload Raw EOL", type=["xlsx"], key="ref")
+    uploaded_raw_eol = st.file_uploader("Upload Raw EOL", type=["xlsx"], key="raw")
     if uploaded_raw_eol:
         df_raw_data = pd.read_excel(uploaded_raw_eol)
 
