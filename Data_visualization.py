@@ -712,15 +712,15 @@ elif menu == "Loss between EOL":
         df_eol["EOL(dB)"] = df_eol_ref
         df_eol["Current Attenuation(dB)"] = df_ref[header_names[0]]
         df_eol["Loss current - Loss EOL"] = calculated_diff
-        df_eol["Remark"] = df_ref.get(header_names[3], "").astype(str).strip()
+        df_eol["Remark"] = df_ref.get(header_names[3], "").astype(str)
 
         return df_eol
         
-    def isDiffError(row: pd.Series):
+    def isDiffError(row):
         color = [''] * len(row)
         if float(row["Loss current - Loss EOL"]) >= 2:
             color = ['background-color: #ff4d4d; color: white'] * len(row)
-        elif row["Remark"] != "":
+        elif row["Remark"].strip() != "":
             color = ['background-color: #d6b346; color: white'] * len(row)
         
         return color
