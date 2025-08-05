@@ -814,9 +814,9 @@ elif menu == "Loss between EOL":
         days_count = len(df_atten)
 
         # recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
-        recent_rank = 0
+        # recent_rank = 0
 
-        joined_df = df_eol_ref.join(df_atten[recent_rank].set_index("Link Name"), on="Link Name")
+        joined_df = df_eol_ref.join(df_atten.set_index("Link Name"), on="Link Name")
         df_result = calculate_eol_diff(joined_df)
 
         st.dataframe(df_result)
