@@ -765,7 +765,6 @@ elif menu == "Loss between EOL":
             lambda x: "" if is_castable_to_float(x) else "Fiber Break"
         )
 
-
         return df_atten
     
     if st.session_state.get("raw_data") is None:
@@ -792,7 +791,6 @@ elif menu == "Loss between EOL":
     df_raw_data_list = st.session_state.get("raw_data")
     if df_ref is not None and df_raw_data_list is not None:
         # days_count = countDay(df_ref)
-        # recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
 
         # df_eol = get_df_recent_rank(df_ref, recent_rank)
 
@@ -801,7 +799,13 @@ elif menu == "Loss between EOL":
         df_eol_ref = extract_eol_ref(df_ref)
         df_atten = [ extract_raw_data(df_raw_data) for df_raw_data in df_raw_data_list]
 
-        st.dataframe(df_atten[0])
+        days_count = len(df_atten)
+
+        recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
+
+        joined_df = df_eol_ref.join(df_atten[recent_rank].set_index("Link Name"), on="Link Name")
+
+        st.dataframe(joined_df)
 
         # st.dataframe(df_raw_data_list[0])
         
