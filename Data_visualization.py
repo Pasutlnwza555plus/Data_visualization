@@ -748,6 +748,30 @@ elif menu == "Loss between EOL":
 
         return df_eol_ref
     
+    # def extract_raw_data_from_ref(df_ref: pd.DataFrame, start: int = 12) -> pd.DataFrame:
+    #     start = 12
+
+    #     # start = header_len - 4*(recent_rank + 1)
+    #     # end_col = header_len - 4*recent_rank
+    #     header_names = df_ref.columns[start:start+4].to_list()
+    #     eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
+
+    #     st.markdown(df_ref.columns[start])
+
+    #     df_date_ref = pd.to_numeric(df_ref[header_names[0]], downcast="float", errors="coerce")
+    #     df_eol_ref = pd.to_numeric(df_ref[eol_ref_columns[0]], downcast="float", errors="coerce")
+
+    #     calculated_diff = df_date_ref - df_eol_ref - 1
+
+    #     df_eol = pd.DataFrame()
+
+    #     df_eol["Link Name"] = df_ref['140.1'].iloc[1:]
+    #     df_eol["EOL(dB)"] = df_eol_ref
+    #     df_eol["Current Attenuation(dB)"] = df_ref[header_names[0]]
+    #     df_eol["Loss current - Loss EOL"] = calculated_diff
+    #     df_eol["Remark"] = df_ref[header_names[3]]
+
+    
     def extract_raw_data(df_raw_data: pd.DataFrame) -> pd.DataFrame:
         df_raw_data.columns = df_raw_data.columns.str.strip()
 
@@ -801,15 +825,17 @@ elif menu == "Loss between EOL":
 
         days_count = len(df_atten)
 
-        # recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
-        # recent_rank = 0
-
         joined_df = df_eol_ref.join(df_atten.set_index("Link Name"), on="Link Name")
         df_result = calculate_eol_diff(joined_df)
 
         st.dataframe(df_result.style.apply(isDiffError, axis=1), hide_index=True)
 
-        # st.dataframe(df_raw_data_list[0])
+        days_count = countDay(df_ref)
+        recent_rank = st.slider(label="days before", min_value=1, max_value=days_count, value=1)
+
+        df_eol = get_df_recent_rank(df_ref, recent_rank-1)
+
+        st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
         
         draw_color_legend()
     else:
