@@ -754,10 +754,9 @@ elif menu == "Loss between EOL":
         df_atten["Link Name"] = source_port_col + "_" + sink_port_col
         df_atten["Current Attenuation(dB)"] = df_raw_data["Optical Attenuation (dB)"]
 
-        try:
-            df_atten["Remark"] = "" if float(df_raw_data["Optical Attenuation (dB)"]) else "Fiber Break"
-        except:
-            df_atten["Remark"] = "Fiber Break"
+        df_atten["Remark"] = df_atten["Current Attenuation(dB)"].apply(
+            lambda x: "" if pd.notna(x) and str(x).strip() != "" else "Fiber Break"
+        )
 
         return df_atten
     
