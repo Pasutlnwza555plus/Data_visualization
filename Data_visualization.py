@@ -819,7 +819,7 @@ elif menu == "Loss between EOL":
         joined_df = df_eol_ref.join(df_atten.set_index("Link Name"), on="Link Name")
         df_result = calculate_eol_diff(joined_df)
 
-        st.dataframe(df_result)
+        st.dataframe(df_result, hide_index=True)
 
         # st.dataframe(df_raw_data_list[0])
         
