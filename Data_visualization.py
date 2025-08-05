@@ -720,7 +720,7 @@ elif menu == "Loss between EOL":
         color = [''] * len(row)
         if float(row["Loss current - Loss EOL"]) >= 2:
             color = ['background-color: #ff4d4d; color: white'] * len(row)
-        elif row["Remark"]:
+        elif row["Remark"] is None or row["Remark"].strip() == "":
             color = ['background-color: #d6b346; color: white'] * len(row)
         
         return color
@@ -747,30 +747,6 @@ elif menu == "Loss between EOL":
         df_eol_ref["EOL(dB)"] = eol_ref_columns_float
 
         return df_eol_ref
-    
-    # def extract_raw_data_from_ref(df_ref: pd.DataFrame, start: int = 12) -> pd.DataFrame:
-    #     start = 12
-
-    #     # start = header_len - 4*(recent_rank + 1)
-    #     # end_col = header_len - 4*recent_rank
-    #     header_names = df_ref.columns[start:start+4].to_list()
-    #     eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
-
-    #     st.markdown(df_ref.columns[start])
-
-    #     df_date_ref = pd.to_numeric(df_ref[header_names[0]], downcast="float", errors="coerce")
-    #     df_eol_ref = pd.to_numeric(df_ref[eol_ref_columns[0]], downcast="float", errors="coerce")
-
-    #     calculated_diff = df_date_ref - df_eol_ref - 1
-
-    #     df_eol = pd.DataFrame()
-
-    #     df_eol["Link Name"] = df_ref['140.1'].iloc[1:]
-    #     df_eol["EOL(dB)"] = df_eol_ref
-    #     df_eol["Current Attenuation(dB)"] = df_ref[header_names[0]]
-    #     df_eol["Loss current - Loss EOL"] = calculated_diff
-    #     df_eol["Remark"] = df_ref[header_names[3]]
-
     
     def extract_raw_data(df_raw_data: pd.DataFrame) -> pd.DataFrame:
         df_raw_data.columns = df_raw_data.columns.str.strip()
