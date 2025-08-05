@@ -789,10 +789,12 @@ elif menu == "Loss between EOL":
 
         # st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
 
-        df_eol_ref = extract_eol_ref(df_ref)
-        df_atten = [ extract_raw_data(df_raw_data) for df_raw_data in df_raw_data_list]
+        # df_eol_ref = extract_eol_ref(df_ref)
+        # df_atten = [ extract_raw_data(df_raw_data) for df_raw_data in df_raw_data_list]
 
-        st.dataframe(df_atten[0])
+        # st.dataframe(df_atten[0])
+
+        st.dataframe(df_raw_data_list[0])
         
         draw_color_legend()
     else:
