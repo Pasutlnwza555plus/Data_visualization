@@ -780,7 +780,7 @@ elif menu == "Loss between EOL":
         st.success("Raw Data File Uploaded")
 
     df_ref = st.session_state.get("reference_sheet")
-    df_raw_data = st.session_state.get("raw_data")
+    df_raw_data_list = st.session_state.get("raw_data")
     if df_ref is not None and df_raw_data is not None:
         # days_count = countDay(df_ref)
         # recent_rank = st.slider(label="days before", min_value=0, max_value=days_count-1, value=0)
@@ -790,9 +790,9 @@ elif menu == "Loss between EOL":
         # st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
 
         df_eol_ref = extract_eol_ref(df_ref)
-        df_atten = extract_raw_data(df_raw_data)
+        df_atten = [ extract_raw_data(df_raw_data) for df_raw_data in df_raw_data_list]
 
-        st.dataframe(df_eol_ref)
+        st.dataframe(df_atten[0])
         
         draw_color_legend()
     else:
