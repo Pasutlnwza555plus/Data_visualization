@@ -796,7 +796,7 @@ elif menu == "Loss between EOL":
     if uploaded_raw_eol:
         df_raw_data = pd.read_excel(uploaded_raw_eol)
 
-        st.session_state.raw_data.append(df_raw_data)
+        st.session_state.raw_data = df_raw_data
         st.success("Raw Data File Uploaded")
 
     df_ref = st.session_state.get("reference_sheet")
