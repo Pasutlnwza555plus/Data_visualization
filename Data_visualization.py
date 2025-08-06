@@ -814,7 +814,6 @@ elif menu == "Loss between EOL":
         st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
         
         draw_color_legend()
-    else:
-        st.markdown("fuk U, data error")
+    
 
     
