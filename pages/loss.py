@@ -123,7 +123,7 @@ class CoreAnalyzer(EOLAnalyzer):
     def calculate_loss_between_core(self, df_result: pd.DataFrame) -> pd.DataFrame:
         forward_direction = df_result["Loss current - Loss EOL"].iloc[::2].values
         reverse_direction = df_result["Loss current - Loss EOL"].iloc[1::2].values
-        loss_between_core = forward_direction - reverse_direction
+        loss_between_core = abs(round(forward_direction - reverse_direction, 2))
 
         df_loss_between_core = pd.DataFrame()
         df_loss_between_core["Loss between core"] = loss_between_core
@@ -148,8 +148,8 @@ class CoreAnalyzer(EOLAnalyzer):
             ">
             <thead style="background-color: rgba(26,28,36,1); color: #fafafa;">
                 <tr>
-                    <th style="border: 1px solid rgba(250,250,250,0.1); padding: 8px 8px;">Link Name</th>
-                    <th style="border: 1px solid rgba(250,250,250,0.1); padding: 8px 8px;">Loss</th>
+                    <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Link Name</th>
+                    <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Loss between core</th>
                 </tr>
             </thead>
             <tbody style="background-color: #0e1117; color: #fafafa;">
@@ -158,9 +158,7 @@ class CoreAnalyzer(EOLAnalyzer):
         loss_index = 0
         for i in range(len(link_names)):
             html += "<tr>"
-            # Link Name
-            html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 8px 8px;'>{link_names[i]}</td>"
-            # Loss column, only insert every `span` rows
+            html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;'>{link_names[i]}</td>"
             if i % span == 0:
                 html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center;' rowspan='{span}'>{loss_values[loss_index]}</td>"
                 loss_index += 1
