@@ -146,10 +146,10 @@ class CoreAnalyzer(EOLAnalyzer):
                 font-family: 'Source Sans', sans-serif;
                 font-size: 14px;
             ">
-            <thead style="background-color: rgba(26,28,36,1); color: #fafafa; padding: 1px;">
+            <thead style="background-color: rgba(26,28,36,1); color: #fafafa;">
                 <tr>
-                    <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Link Name</th>
-                    <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Loss</th>
+                    <th style="border: 1px solid rgba(250,250,250,0.1); padding: 8px 8px;">Link Name</th>
+                    <th style="border: 1px solid rgba(250,250,250,0.1); padding: 8px 8px;">Loss</th>
                 </tr>
             </thead>
             <tbody style="background-color: #0e1117; color: #fafafa;">
@@ -159,7 +159,7 @@ class CoreAnalyzer(EOLAnalyzer):
         for i in range(len(link_names)):
             html += "<tr>"
             # Link Name
-            html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;'>{link_names[i]}</td>"
+            html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 8px 8px;'>{link_names[i]}</td>"
             # Loss column, only insert every `span` rows
             if i % span == 0:
                 html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center;' rowspan='{span}'>{loss_values[loss_index]}</td>"
