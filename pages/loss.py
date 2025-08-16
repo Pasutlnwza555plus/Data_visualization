@@ -170,10 +170,9 @@ class CoreAnalyzer(EOLAnalyzer):
                 <tr>
                     <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; {color}'>
                         {link_names[i]}
-                    </td>
-                    {merged_cells}
+                    </td>{merged_cells}
                 </tr>
-            """.strip()
+            """
 
         return table_body
     
