@@ -125,13 +125,40 @@ class CoreAnalyzer(EOLAnalyzer):
         reverse_direction = df_result["Loss current - Loss EOL"].iloc[1::2].values
         loss_between_core = forward_direction - reverse_direction
 
-        df_loss_between_core = pd.DataFrame(loss_between_core)
+        df_loss_between_core = pd.DataFrame()
+        df_loss_between_core["Loss between core"] = loss_between_core
 
         return df_loss_between_core
 
     def process(self):
         if self.df_ref is not None and self.df_raw_data is not None:
             df_result = super().build_result_df()
+
+            df_eol_ref: pd.DataFrame = super().extract_eol_ref()
             df_loss_between_core = self.calculate_loss_between_core(df_result)
 
-            st.dataframe(df_loss_between_core)
+            link_names = df_eol_ref["Link Name"].to_list()
+            loss_values = df_loss_between_core["Loss between core"]
+
+            html = "<table border='1' style='border-collapse: collapse; text-align: center;'>"
+            html += "<tr><th>Link Name</th><th>Loss</th></tr>"
+
+            loss_index = 0
+            for i in range(len(link_names)):
+                html += "<tr>"
+                
+                # Link Name
+                html += f"<td>{link_names[i]}</td>"
+                
+                # Loss column: only add for even index and set rowspan=2
+                if i % 2 == 0:
+                    html += f"<td rowspan='2'>{loss_values[loss_index]}</td>"
+                    loss_index += 1
+                
+                html += "</tr>"
+
+            html += "</table>"
+
+            st.markdown(html, unsafe_allow_html=True)
+
+            # st.dataframe(df_loss_between_core)
