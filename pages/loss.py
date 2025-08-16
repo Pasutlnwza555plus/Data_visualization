@@ -164,7 +164,7 @@ class CoreAnalyzer(EOLAnalyzer):
                     <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center; {color}' rowspan=2>
                         {"{:.2f}".format(loss_values[i // 2])}
                     </td>
-                """
+                """.strip()
 
             table_body += f"""
                 <tr>
@@ -173,7 +173,7 @@ class CoreAnalyzer(EOLAnalyzer):
                     </td>
                     {merged_cells}
                 </tr>
-            """
+            """.strip()
 
         return table_body
     
