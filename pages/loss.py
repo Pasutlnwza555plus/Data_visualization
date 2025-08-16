@@ -151,54 +151,62 @@ class CoreAnalyzer(EOLAnalyzer):
             return "error"
         return ""
 
-    
-    def build_loss_table(self, link_names, loss_values) -> str:
-        html = f"""
-        <div style="
-            max-height: 500px; 
-            overflow-y: auto; 
-            border: 1px solid rgba(250, 250, 250, 0.1); 
-            border-radius: 0.5rem;
-            box-sizing: border-box;
-        ">
-            <table style="
-                border-collapse: collapse; 
-                width: 100%; 
-                text-align: left; 
-                font-family: 'Source Sans', sans-serif;
-                font-size: 14px;
-            ">
-            <thead style="background-color: rgba(26,28,36,1); color: #fafafa;">
-                <tr>
-                    <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Link Name</th>
-                    <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Loss between core</th>
-                </tr>
-            </thead>
-            <tbody style="background-color: #0e1117; color: #fafafa;">
-        """
+    def build_loss_table_body(self, link_names, loss_values) -> str:
+        table_body = ""
 
         loss_index = 0
         for i in range(len(link_names)):
             status = CoreAnalyzer.getColorCondition(loss_values[loss_index])
             color = LossAnalyzer.getColor(status)
 
-            html += "<tr>"
-            html += f"""
+            table_body += "<tr>"
+            table_body += f"""
                 <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; {color}'>
                     {link_names[i]}
                 </td>
             """
 
             if i % 2 == 0:
-                html += f"""
+                table_body += f"""
                     <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center; {color}' rowspan=2>
                         {"{:.2f}".format(loss_values[loss_index])}
                     </td>
                 """
                 loss_index += 1
-            html += "</tr>"
+            table_body += "</tr>"
 
-        html += "</tbody></table></div>"
+        return table_body
+    
+    def build_loss_table(self, link_names, loss_values) -> str:
+        table_body = self.build_loss_table_data(link_names, loss_values)
+
+        html = f"""
+            <div style="
+                max-height: 500px; 
+                overflow-y: auto; 
+                border: 1px solid rgba(250, 250, 250, 0.1); 
+                border-radius: 0.5rem;
+                box-sizing: border-box;
+            ">
+                <table style="
+                    border-collapse: collapse; 
+                    width: 100%; 
+                    text-align: left; 
+                    font-family: 'Source Sans', sans-serif;
+                    font-size: 14px;
+                ">
+                    <thead style="background-color: rgba(26,28,36,1); color: #fafafa;">
+                        <tr>
+                            <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Link Name</th>
+                            <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Loss between core</th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: #0e1117; color: #fafafa;">
+                        {table_body}
+                    </tbody>
+                </table>
+            </div>
+        """
 
         return html
 
