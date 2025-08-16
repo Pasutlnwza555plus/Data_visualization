@@ -158,7 +158,7 @@ class CoreAnalyzer(EOLAnalyzer):
             status = CoreAnalyzer.getColorCondition(loss_values[i // 2])
             color = LossAnalyzer.getColor(status)
 
-            table_body = f"""
+            table_body += f"""
                 <tr>
                     <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; {color}'>
                         {link_names[i]}
