@@ -172,7 +172,7 @@ class CoreAnalyzer(EOLAnalyzer):
                         {link_names[i]}
                     </td>{merged_cells}
                 </tr>
-            """
+            """.strip()
 
         return table_body
     
