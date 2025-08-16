@@ -231,3 +231,5 @@ class CoreAnalyzer(EOLAnalyzer):
             html = self.build_loss_table(link_names, loss_values)
 
             st.markdown(html, unsafe_allow_html=True)
+
+            LossAnalyzer.draw_color_legend()
