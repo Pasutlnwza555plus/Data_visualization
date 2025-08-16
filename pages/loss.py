@@ -134,7 +134,7 @@ class CoreAnalyzer(EOLAnalyzer):
         html = f"""
         <div style="
             max-height: {height}px; 
-            overflow-y: hidden; 
+            overflow-y: auto; 
             border: 1px solid rgba(250, 250, 250, 0.1); 
             border-radius: 0.5rem;
             box-sizing: border-box;
