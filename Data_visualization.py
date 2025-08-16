@@ -1301,14 +1301,16 @@ elif menu == "Loss between EOL":
 
         st.dataframe(df_result.style.apply(isDiffError, axis=1), hide_index=True)
 
-        days_count = countDay(df_ref)
-        recent_rank = st.slider(label="days before", min_value=1, max_value=days_count, value=1)
+        # days_count = countDay(df_ref)
+        # recent_rank = st.slider(label="days before", min_value=1, max_value=days_count, value=1)
 
-        df_eol = get_df_recent_rank(df_ref, recent_rank-1)
+        # df_eol = get_df_recent_rank(df_ref, recent_rank-1)
 
-        st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
+        # st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
         
         draw_color_legend()
     
 
-    
+elif menu == "Loss between Core":
+    st.markdown("### Please upload files")
+
