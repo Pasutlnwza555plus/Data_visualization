@@ -154,26 +154,20 @@ class CoreAnalyzer(EOLAnalyzer):
     def build_loss_table_body(self, link_names, loss_values) -> str:
         table_body = ""
 
-        loss_index = 0
         for i in range(len(link_names)):
-            status = CoreAnalyzer.getColorCondition(loss_values[loss_index], 2)
+            status = CoreAnalyzer.getColorCondition(loss_values[i // 2])
             color = LossAnalyzer.getColor(status)
 
-            table_body += "<tr>"
-            table_body += f"""
-                <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; {color}'>
-                    {link_names[i]}
-                </td>
-            """
-
-            if i % 2 == 0:
-                table_body += f"""
-                    <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center; {color}' rowspan=2>
-                        {"{:.2f}".format(loss_values[loss_index])}
+            table_body = f"""
+                <tr>
+                    <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; {color}'>
+                        {link_names[i]}
                     </td>
-                """
-                loss_index += 1
-            table_body += "</tr>"
+                    <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center; {color}' rowspan=2>
+                        {"{:.2f}".format(loss_values[i // 2])}
+                    </td>
+                </tr>
+            """
 
         return table_body
     
