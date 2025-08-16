@@ -6,6 +6,8 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 
+from pages.loss import EOLAnalyzer, CoreAnalyzer
+
 st.set_page_config(layout="wide")
 
 pd.set_option("styler.render.max_elements", 1_200_000)
@@ -1161,157 +1163,33 @@ elif menu == "Preset status":
 
                 
 
-# region Loss differ for EOL
+# region Loss between EOL
 elif menu == "Loss between EOL":
     st.markdown("### Please upload files")
 
-    def draw_color_legend():
-        st.markdown("""
-            <div style='display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 1rem'>
-                <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
-                    <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 8px;'></div>
-                    <div style='text-align: center; color: #ff4d4d; font-size: 24px; font-weight: bold;'>
-                        EOL NOT OK 
-                    </div>
-                </div>
-                <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
-                    <div style='background-color: #d6b346; width: 24px; height: 24px; border-radius: 8px;'></div>
-                    <div style='text-align: center; color: #d6b346; font-size: 24px; font-weight: bold;'>
-                        Fiber break occurs
-                    </div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-
-    def get_df_recent_rank(df_ref: pd.DataFrame, recent_rank: int = 0) -> pd.DataFrame:
-        header_len = len(df_ref.columns)
-        days_count = countDay(df_ref)
-        if (recent_rank >= days_count):
-            raise Exception("Data not found")
-
-        start = header_len - 4*(recent_rank + 1)
-        end_col = header_len - 4*recent_rank
-        header_names = df_ref.columns[start:end_col].to_list()
-        eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
-
-        st.markdown(df_ref.columns[start])
-
-        df_date_ref = pd.to_numeric(df_ref[header_names[0]], downcast="float", errors="coerce")
-        df_eol_ref = pd.to_numeric(df_ref[eol_ref_columns[0]], downcast="float", errors="coerce")
-
-        calculated_diff = df_date_ref - df_eol_ref - 1
-
-        df_eol = pd.DataFrame()
-
-        df_eol["Link Name"] = df_ref['140.1'].iloc[1:]
-        df_eol["EOL(dB)"] = df_eol_ref
-        df_eol["Current Attenuation(dB)"] = df_ref[header_names[0]]
-        df_eol["Loss current - Loss EOL"] = calculated_diff
-        df_eol["Remark"] = df_ref.get(header_names[3], "").fillna("").astype(str)
-
-        return df_eol
-        
-    def isDiffError(row):
-        color = [''] * len(row)
-        if float(row["Loss current - Loss EOL"]) >= 2:
-            color = ['background-color: #ff4d4d; color: white'] * len(row)
-        elif row["Remark"].strip() != "":
-            color = ['background-color: #d6b346; color: white'] * len(row)
-        
-        return color
-    
-    def countDay(df_ref: pd.DataFrame):
-        days = (len(df_ref.columns) - 11) / 4
-
-        return int(days)
-    
-    def is_castable_to_float(x) -> bool:
-        try:
-            float(x)
-            return True
-        except (ValueError, TypeError):
-            return False
-    
-    def extract_eol_ref(df_ref: pd.DataFrame) -> pd.DataFrame:
-        df_eol_ref = pd.DataFrame()
-
-        eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
-        eol_ref_columns_float = pd.to_numeric(df_ref[eol_ref_columns[0]], downcast="float", errors="coerce")
-
-        df_eol_ref["Link Name"] = df_ref['140.1'].iloc[1:]
-        df_eol_ref["EOL(dB)"] = eol_ref_columns_float
-
-        return df_eol_ref
-    
-    def extract_raw_data(df_raw_data: pd.DataFrame) -> pd.DataFrame:
-        df_raw_data.columns = df_raw_data.columns.str.strip()
-
-        df_atten = pd.DataFrame()
-
-        source_port_col = df_raw_data["Source Port"]
-        sink_port_col = df_raw_data["Sink Port"]
-        df_atten["Link Name"] = source_port_col + "_" + sink_port_col
-        df_atten["Current Attenuation(dB)"] = df_raw_data["Optical Attenuation (dB)"]
-
-        df_atten["Remark"] = df_atten["Current Attenuation(dB)"].apply(
-            lambda x: "" if is_castable_to_float(x) else "Fiber Break"
-        )
-
-        return df_atten
-    
-    def calculate_eol_diff(df_eol: pd.DataFrame) -> pd.DataFrame:
-        df_eol_diff = df_eol.copy()
-
-        current_atten_col = pd.to_numeric(df_eol["Current Attenuation(dB)"], downcast="float", errors="coerce")
-        eol_ref_col = pd.to_numeric(df_eol["EOL(dB)"], downcast="float", errors="coerce")
-
-        calculated_diff = current_atten_col - eol_ref_col- 1
-
-        df_eol_diff["Loss current - Loss EOL"] = calculated_diff
-
-        ordered_column_names = ["Link Name", "EOL(dB)", "Current Attenuation(dB)", "Loss current - Loss EOL", "Remark"]
-
-        return df_eol_diff[ordered_column_names]
-
-    uploaded_raw_eol = st.file_uploader("Upload Raw EOL", type=["xlsx"], key="raw")
+    uploaded_raw_eol = st.file_uploader("Upload Raw Optical Attenuation", type=["xlsx"], key="raw_optical_atten")
     if uploaded_raw_eol:
         df_raw_data = pd.read_excel(uploaded_raw_eol)
 
         st.session_state.raw_eol_data = df_raw_data
         st.success("Raw Data File Uploaded")
 
-    df_ref = st.session_state.get("core_eol_reference_sheet")
-    df_raw_data = st.session_state.get("raw_eol_data")
-    if df_ref is not None and df_raw_data is not None:
-        df_eol_ref = extract_eol_ref(df_ref)
-        df_atten   = extract_raw_data(df_raw_data)
-
-        days_count = len(df_atten)
-
-        joined_df = df_eol_ref.join(df_atten.set_index("Link Name"), on="Link Name")
-        df_result = calculate_eol_diff(joined_df)
-
-        st.dataframe(df_result.style.apply(isDiffError, axis=1), hide_index=True)
-
-        # days_count = countDay(df_ref)
-        # recent_rank = st.slider(label="days before", min_value=1, max_value=days_count, value=1)
-
-        # df_eol = get_df_recent_rank(df_ref, recent_rank-1)
-
-        # st.dataframe(df_eol.style.apply(isDiffError, axis=1), hide_index=True)
-        
-        draw_color_legend()
+    analyzer = EOLAnalyzer()
+    analyzer.process()
     
-
+# region Loss Between Core
 elif menu == "Loss between Core":
     st.markdown("### Please upload files")
 
-    uploaded_raw_eol = st.file_uploader("Upload Raw EOL", type=["xlsx"], key="raw")
+    uploaded_raw_eol = st.file_uploader("Upload Raw Optical Attenuation", type=["xlsx"], key="raw_optical_atten")
     if uploaded_raw_eol:
         df_raw_data = pd.read_excel(uploaded_raw_eol)
 
         st.session_state.raw_eol_data = df_raw_data
         st.success("Raw Data File Uploaded")
+
+    analyzer = CoreAnalyzer()
+    analyzer.process()
 
 elif menu == "Reference Sheet":
     st.markdown("### Please upload files")
