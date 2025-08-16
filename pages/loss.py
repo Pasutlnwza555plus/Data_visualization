@@ -130,7 +130,7 @@ class CoreAnalyzer(EOLAnalyzer):
 
         return df_loss_between_core
     
-    def st_dataframe_with_rowspan(link_names, loss_values, span=2, height=400, width=380) -> str:
+    def st_dataframe_with_rowspan(self, link_names, loss_values, span=2, height=400, width=380) -> str:
         html = f"""
         <div style="
             max-height: {height}px; 
