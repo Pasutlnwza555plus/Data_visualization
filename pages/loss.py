@@ -127,19 +127,31 @@ class EOLAnalyzer(LossAnalyzer):
         me_names = [ link_name.split("-")[0] for link_name in link_names ]
 
         return me_names
+    
+    def is_correct_me(row: pd.Series, me_name: str) -> bool:
+        link_name = row["Link Name"]
+        return me_name in link_name
+    
+    def get_filtered_result(self, df_result: pd.DataFrame, selected_me_name: str) -> pd.DataFrame:
+        df_filtered = df_result[df_result.apply(lambda row: EOLAnalyzer.is_correct_me(row, selected_me_name))]
+
+        return df_filtered
 
     def process(self):
         if self.df_ref is not None and self.df_raw_data is not None:
             df_result = self.build_result_df()
             me_names = self.get_me_names(df_result)
 
-            st.selectbox(
+            selected_me_name = st.selectbox(
                 "Managed Element",
                 me_names,
                 index=None,
                 placeholder="Choose options"
             )
-            st.dataframe(df_result.style.apply(self.isDiffError, axis=1), hide_index=True)
+
+            df_filtered = self.get_filtered_result(df_result, selected_me_name)
+
+            st.dataframe(df_filtered.style.apply(self.isDiffError, axis=1), hide_index=True)
 
             self.draw_color_legend()
 
