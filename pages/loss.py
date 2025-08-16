@@ -176,6 +176,7 @@ class CoreAnalyzer(EOLAnalyzer):
         ]
 
         df_loss_between_core = pd.DataFrame()
+        df_loss_between_core["Link Name"] = df_result["Link Name"]
         df_loss_between_core["Loss between core"] = loss_between_core
 
         return df_loss_between_core
@@ -257,10 +258,9 @@ class CoreAnalyzer(EOLAnalyzer):
             selected_me_name = self.get_selected_me_name(df_result)
             df_filtered = self.get_filtered_result(df_result, selected_me_name)
 
-            df_eol_ref: pd.DataFrame = super().extract_eol_ref(self.df_ref)
             df_loss_between_core = self.calculate_loss_between_core(df_filtered)
 
-            link_names = df_eol_ref["Link Name"].tolist()
+            link_names  = df_loss_between_core["Link Name"].tolist()
             loss_values = df_loss_between_core["Loss between core"].tolist()
 
             html = self.build_loss_table(link_names, loss_values)
