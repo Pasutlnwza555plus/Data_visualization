@@ -134,7 +134,7 @@ class CoreAnalyzer(EOLAnalyzer):
         if self.df_ref is not None and self.df_raw_data is not None:
             df_result = super().build_result_df()
 
-            df_eol_ref: pd.DataFrame = super().extract_eol_ref()
+            df_eol_ref: pd.DataFrame = super().extract_eol_ref(self.df_ref)
             df_loss_between_core = self.calculate_loss_between_core(df_result)
 
             link_names = df_eol_ref["Link Name"].to_list()
