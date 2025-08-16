@@ -159,7 +159,7 @@ def evaluate_preset_status(cb: CallBlock) -> Dict[str, Any]:
     }
 
 # Sidebar
-menu = st.sidebar.radio("เลือกกิจกรรม", ["หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping","Loss between Core","Loss between EOL","Preset status"])
+menu = st.sidebar.radio("เลือกกิจกรรม", ["หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping","Loss between Core","Loss between EOL","Preset status","Reference Sheet"])
 
 if menu == "หน้าแรก":
     st.subheader("DWDM Monitoring Dashboard")
@@ -1273,23 +1273,15 @@ elif menu == "Loss between EOL":
 
         return df_eol_diff[ordered_column_names]
 
-    EOL_sheet_name = "Loss between core & EOL"
-    uploaded_reference = st.file_uploader("Upload Reference Sheet", type=["xlsx"], key="ref")
-    if uploaded_reference:
-        df_ref_sheet = pd.read_excel(uploaded_reference, sheet_name=EOL_sheet_name)
-
-        st.session_state.reference_sheet = df_ref_sheet
-        st.success("Reference Sheet File Uploaded")
-
     uploaded_raw_eol = st.file_uploader("Upload Raw EOL", type=["xlsx"], key="raw")
     if uploaded_raw_eol:
         df_raw_data = pd.read_excel(uploaded_raw_eol)
 
-        st.session_state.raw_data = df_raw_data
+        st.session_state.raw_eol_data = df_raw_data
         st.success("Raw Data File Uploaded")
 
-    df_ref = st.session_state.get("reference_sheet")
-    df_raw_data = st.session_state.get("raw_data")
+    df_ref = st.session_state.get("core_eol_reference_sheet")
+    df_raw_data = st.session_state.get("raw_eol_data")
     if df_ref is not None and df_raw_data is not None:
         df_eol_ref = extract_eol_ref(df_ref)
         df_atten   = extract_raw_data(df_raw_data)
@@ -1314,3 +1306,21 @@ elif menu == "Loss between EOL":
 elif menu == "Loss between Core":
     st.markdown("### Please upload files")
 
+    uploaded_raw_eol = st.file_uploader("Upload Raw EOL", type=["xlsx"], key="raw")
+    if uploaded_raw_eol:
+        df_raw_data = pd.read_excel(uploaded_raw_eol)
+
+        st.session_state.raw_eol_data = df_raw_data
+        st.success("Raw Data File Uploaded")
+
+elif menu == "Reference Sheet":
+    st.markdown("### Please upload files")
+
+    Core_EOL_reference_sheet_name = "Loss between core & EOL"
+    uploaded_reference = st.file_uploader("Upload Reference Sheet for Core & EOL loss", type=["xlsx"], key="core_eol_ref")
+
+    if uploaded_reference:
+        df_ref_sheet = pd.read_excel(uploaded_reference, sheet_name=Core_EOL_reference_sheet_name)
+
+        st.session_state.core_eol_reference_sheet = df_ref_sheet
+        st.success("Reference Sheet File Uploaded")
