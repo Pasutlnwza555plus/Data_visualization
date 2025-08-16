@@ -140,8 +140,10 @@ class CoreAnalyzer(EOLAnalyzer):
             link_names = df_eol_ref["Link Name"].to_list()
             loss_values = df_loss_between_core["Loss between core"]
 
+            table_header_html = "<tr><th>Link Name</th><th>Loss</th></tr>"
+
             html = "<table border='1' style='border-collapse: collapse; text-align: center;'>"
-            html += "<tr><th>Link Name</th><th>Loss</th></tr>"
+            html += table_header_html
 
             loss_index = 0
             for i in range(len(link_names)):
