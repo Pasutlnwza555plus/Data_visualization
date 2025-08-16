@@ -156,7 +156,7 @@ class CoreAnalyzer(EOLAnalyzer):
 
         loss_index = 0
         for i in range(len(link_names)):
-            status = CoreAnalyzer.getColorCondition(loss_values[loss_index])
+            status = CoreAnalyzer.getColorCondition(loss_values[loss_index], 2)
             color = LossAnalyzer.getColor(status)
 
             table_body += "<tr>"
