@@ -144,7 +144,7 @@ class CoreAnalyzer(EOLAnalyzer):
         return df_loss_between_core
     
     @staticmethod
-    def getColorCondition(value, threshold=2) -> str:
+    def getColorCondition(value, threshold = 2) -> str:
         if value is None or (isinstance(value, float) and math.isnan(value)):
             return "flapping"
         elif value > threshold:
@@ -156,7 +156,7 @@ class CoreAnalyzer(EOLAnalyzer):
 
         loss_index = 0
         for i in range(len(link_names)):
-            status = CoreAnalyzer.getColorCondition(loss_values[loss_index])
+            status = CoreAnalyzer.getColorCondition(loss_values[loss_index], 2)
             color = LossAnalyzer.getColor(status)
 
             table_body += "<tr>"
