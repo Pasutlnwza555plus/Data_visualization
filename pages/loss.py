@@ -146,7 +146,7 @@ class CoreAnalyzer(EOLAnalyzer):
                 font-family: 'Source Sans', sans-serif;
                 font-size: 14px;
             ">
-            <thead style="background-color: rgba(26,28,36,1); color: #fafafa; padding-y: 1px">
+            <thead style="background-color: rgba(26,28,36,1); color: #fafafa; py: 1px">
                 <tr>
                     <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Link Name</th>
                     <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Loss</th>
