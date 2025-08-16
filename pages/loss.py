@@ -123,7 +123,8 @@ class EOLAnalyzer(LossAnalyzer):
         return df_result
     
     def get_me_names(self, df_result: pd.DataFrame) -> list[str]:
-        me_names = df_result["Link Name"]
+        link_names = df_result["Link Name"].tolist()
+        me_names = [ link_name.split("-")[0] for link_name in link_names ]
 
         return me_names
 
@@ -237,8 +238,8 @@ class CoreAnalyzer(EOLAnalyzer):
             df_eol_ref: pd.DataFrame = super().extract_eol_ref(self.df_ref)
             df_loss_between_core = self.calculate_loss_between_core(df_result)
 
-            link_names = df_eol_ref["Link Name"].to_list()
-            loss_values = df_loss_between_core["Loss between core"].to_list()
+            link_names = df_eol_ref["Link Name"].tolist()
+            loss_values = df_loss_between_core["Loss between core"].tolist()
 
             html = self.build_loss_table(link_names, loss_values)
 
