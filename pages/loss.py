@@ -130,10 +130,10 @@ class CoreAnalyzer(EOLAnalyzer):
 
         return df_loss_between_core
     
-    def st_dataframe_with_rowspan(self, link_names, loss_values, span=2, height=600, width=380) -> str:
+    def build_loss_table(self, link_names, loss_values) -> str:
         html = f"""
         <div style="
-            max-height: {height}px; 
+            max-height: 500px; 
             overflow-y: auto; 
             border: 1px solid rgba(250, 250, 250, 0.1); 
             border-radius: 0.5rem;
@@ -159,8 +159,8 @@ class CoreAnalyzer(EOLAnalyzer):
         for i in range(len(link_names)):
             html += "<tr>"
             html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;'>{link_names[i]}</td>"
-            if i % span == 0:
-                html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center;' rowspan='{span}'>{loss_values[loss_index]}</td>"
+            if i % 2 == 0:
+                html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center;' rowspan=2>{loss_values[loss_index]}</td>"
                 loss_index += 1
             html += "</tr>"
 
@@ -195,6 +195,6 @@ class CoreAnalyzer(EOLAnalyzer):
 
             # html += "</table></div>"
 
-            html = self.st_dataframe_with_rowspan(link_names, loss_values)
+            html = self.build_loss_table(link_names, loss_values)
 
             st.markdown(html, unsafe_allow_html=True)
