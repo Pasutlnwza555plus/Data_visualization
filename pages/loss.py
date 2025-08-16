@@ -134,9 +134,10 @@ class EOLAnalyzer(LossAnalyzer):
     
     def get_filtered_result(self, df_result: pd.DataFrame, selected_me_name: str) -> pd.DataFrame:
         if not selected_me_name:
-            return df_result
+            return df_result.reset_index(drop=True)
         
-        return df_result[df_result["Link Name"].str.contains(selected_me_name, na=False)]
+        mask = df_result["Link Name"].astype(str).str.contains(selected_me_name, na=False)
+        return df_result[mask].reset_index(drop=True)
 
     def process(self):
         if self.df_ref is not None and self.df_raw_data is not None:
