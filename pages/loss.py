@@ -253,7 +253,7 @@ class CoreAnalyzer(EOLAnalyzer):
 
     def process(self):
         if self.df_ref is not None and self.df_raw_data is not None:
-            df_result = super().build_result_df()
+            df_result = super().build_result_df() 
 
             selected_me_name = self.get_selected_me_name(df_result)
             df_filtered = self.get_filtered_result(df_result, selected_me_name)
