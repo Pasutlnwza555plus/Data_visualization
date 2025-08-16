@@ -56,7 +56,7 @@ class LossAnalyzer:
 
     # Base data extraction
     @staticmethod
-    def extract_eol_ref(self, df_ref: pd.DataFrame) -> pd.DataFrame:
+    def extract_eol_ref(df_ref: pd.DataFrame) -> pd.DataFrame:
         df_eol_ref = pd.DataFrame()
         eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
         eol_ref_columns_float = pd.to_numeric(df_ref[eol_ref_columns[0]], downcast="float", errors="coerce")
