@@ -1174,7 +1174,11 @@ elif menu == "Loss between EOL":
         st.session_state.raw_eol_data = df_raw_data
         st.success("Raw Data File Uploaded")
 
-    analyzer = EOLAnalyzer()
+    analyzer = EOLAnalyzer(
+        df_ref = st.session_state.get("core_eol_reference_sheet"), 
+        df_raw_data = st.session_state.get("raw_eol_data"),
+    )
+
     analyzer.process()
     
 # region Loss Between Core
@@ -1188,7 +1192,11 @@ elif menu == "Loss between Core":
         st.session_state.raw_eol_data = df_raw_data
         st.success("Raw Data File Uploaded")
 
-    analyzer = CoreAnalyzer()
+    analyzer = CoreAnalyzer(
+        df_ref = st.session_state.get("core_eol_reference_sheet"), 
+        df_raw_data = st.session_state.get("raw_eol_data"),
+    )
+    
     analyzer.process()
 
 elif menu == "Reference Sheet":

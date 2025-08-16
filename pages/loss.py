@@ -4,9 +4,13 @@ import pandas as pd
 
 # region Base Analyzer for Loss
 class LossAnalyzer:
-    def __init__(self):
-        self.df_ref = st.session_state.get("core_eol_reference_sheet")
-        self.df_raw_data = st.session_state.get("raw_eol_data")
+    def __init__(
+        self, 
+        df_ref: pd.DataFrame | None = None, 
+        df_raw_data: pd.DataFrame | None = None
+    ):
+        self.df_ref = df_ref
+        self.df_raw_data = df_raw_data
 
     # ------- Utilities -------
     @staticmethod
@@ -50,14 +54,8 @@ class LossAnalyzer:
             </div>
         """, unsafe_allow_html=True)
 
-    # Abstract placeholder (children must override)
-    def process(self):
-        raise NotImplementedError("Each analyzer must implement its own process()")
-
-
-# region Analyzer for EOL
-class EOLAnalyzer(LossAnalyzer):
-
+    # Base data extraction
+    @staticmethod
     def extract_eol_ref(self, df_ref: pd.DataFrame) -> pd.DataFrame:
         df_eol_ref = pd.DataFrame()
         eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
@@ -66,6 +64,13 @@ class EOLAnalyzer(LossAnalyzer):
         df_eol_ref["EOL(dB)"] = eol_ref_columns_float
         return df_eol_ref
 
+    # Abstract placeholder (children must override)
+    def process(self):
+        raise NotImplementedError("Each analyzer must implement its own process()")
+
+
+# region Analyzer for EOL
+class EOLAnalyzer(LossAnalyzer):
     def extract_raw_data(self, df_raw_data: pd.DataFrame) -> pd.DataFrame:
         df_raw_data.columns = df_raw_data.columns.str.strip()
         df_atten = pd.DataFrame()
@@ -89,19 +94,19 @@ class EOLAnalyzer(LossAnalyzer):
 
     def process(self):
         if self.df_ref is not None and self.df_raw_data is not None:
-            df_eol_ref = self.extract_eol_ref(self.df_ref)
-            df_atten = self.extract_raw_data(self.df_raw_data)
+            df_eol_ref: pd.DataFrame = self.extract_eol_ref(self.df_ref)
+            df_atten: pd.DataFrame   = self.extract_raw_data(self.df_raw_data)
+
             joined_df = df_eol_ref.join(df_atten.set_index("Link Name"), on="Link Name")
             df_result = self.calculate_eol_diff(joined_df)
+
             st.dataframe(df_result.style.apply(self.isDiffError, axis=1), hide_index=True)
+
             self.draw_color_legend()
 
 
 # region Analyzer for Core
-class CoreAnalyzer(LossAnalyzer):
+class CoreAnalyzer(EOLAnalyzer):
 
     def process(self):
-        if self.df_raw_data is not None:
-            # In future thou mayest define core-specific logic here
-            st.write("Core Analyzer processing not yet implemented.")
-            st.dataframe(self.df_raw_data.head())
+        super().process(self)
