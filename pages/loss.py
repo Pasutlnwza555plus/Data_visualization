@@ -138,6 +138,8 @@ class CoreAnalyzer(EOLAnalyzer):
         reverse_direction = df_result["Loss current - Loss EOL"].iloc[1::2].values
         loss_between_core = [abs(f - r) for f, r in zip(forward_direction, reverse_direction)]
 
+        loss_between_core = [value if value is None or (isinstance(value, float) and math.isnan(value)) else "--" for value in loss_between_core]
+
         df_loss_between_core = pd.DataFrame()
         df_loss_between_core["Loss between core"] = loss_between_core
 
