@@ -94,7 +94,7 @@ class EOLAnalyzer(LossAnalyzer):
 
     def process(self):
         if self.df_ref is not None and self.df_raw_data is not None:
-            df_eol_ref: pd.DataFrame = self.extract_eol_ref(self.df_ref)
+            df_eol_ref: pd.DataFrame = super().extract_eol_ref(self.df_ref)
             df_atten: pd.DataFrame   = self.extract_raw_data(self.df_raw_data)
 
             joined_df = df_eol_ref.join(df_atten.set_index("Link Name"), on="Link Name")
