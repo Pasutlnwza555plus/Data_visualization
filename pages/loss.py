@@ -138,21 +138,25 @@ class EOLAnalyzer(LossAnalyzer):
         
         mask = df_result["Link Name"].astype(str).str.contains(selected_me_name, na=False)
         return df_result[mask].reset_index(drop=True)
+    
+    @staticmethod
+    def get_selected_me_name(self, df_result):
+        me_names = self.get_me_names(df_result)
+
+        selected_me_name = st.selectbox(
+            "Managed Element",
+            me_names,
+            index=None,
+            placeholder="Choose options"
+        )
+
+        return selected_me_name
 
     def process(self):
         if self.df_ref is not None and self.df_raw_data is not None:
             df_result = self.build_result_df()
-            me_names = self.get_me_names(df_result)
 
-            selected_me_name = st.selectbox(
-                "Managed Element",
-                me_names,
-                index=None,
-                placeholder="Choose options"
-            )
-
-            st.markdown(selected_me_name)
-
+            selected_me_name = self.get_selected_me_name(df_result)
             df_filtered = self.get_filtered_result(df_result, selected_me_name)
 
             st.dataframe(df_filtered.style.apply(self.isDiffError, axis=1), hide_index=True)
@@ -251,8 +255,11 @@ class CoreAnalyzer(EOLAnalyzer):
         if self.df_ref is not None and self.df_raw_data is not None:
             df_result = super().build_result_df()
 
+            selected_me_name = self.get_selected_me_name(df_result)
+            df_filtered = self.get_filtered_result(df_result, selected_me_name)
+
             df_eol_ref: pd.DataFrame = super().extract_eol_ref(self.df_ref)
-            df_loss_between_core = self.calculate_loss_between_core(df_result)
+            df_loss_between_core = self.calculate_loss_between_core(df_filtered)
 
             link_names = df_eol_ref["Link Name"].tolist()
             loss_values = df_loss_between_core["Loss between core"].tolist()
