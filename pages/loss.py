@@ -195,19 +195,24 @@ class CoreAnalyzer(EOLAnalyzer):
         for i in range(len(link_names)):
             status = CoreAnalyzer.getColorCondition(loss_values[i])
             color = LossAnalyzer.getColor(status)
-            
-            formated_value = loss_values[i]
-            if formated_value != "--":
-                formated_value = "{:.2f}".format(loss_values[i])
+
+            merged_cells = ""
+            if i % 2 == 0:
+                formated_value = loss_values[i]
+                if formated_value != "--":
+                    formated_value = "{:.2f}".format(loss_values[i])
+                    
+                merged_cells = f"""
+                    <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center; {color}' rowspan=2>
+                        {formated_value}
+                    </td>
+                """.strip()
 
             table_body += f"""
                 <tr>
                     <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; {color}'>
                         {link_names[i]}
-                    </td>
-                    <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center; {color}' rowspan=2>
-                        {formated_value}
-                    </td>
+                    </td>{merged_cells}
                 </tr>
             """.strip()
 
