@@ -232,4 +232,19 @@ class CoreAnalyzer(EOLAnalyzer):
 
             st.markdown(html, unsafe_allow_html=True)
 
-            LossAnalyzer.draw_color_legend()
+            st.markdown("""
+                <div style='display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 1rem'>
+                    <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
+                        <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 8px;'></div>
+                        <div style='text-align: center; color: #ff4d4d; font-size: 24px; font-weight: bold;'>
+                            Loss NOT OK 
+                        </div>
+                    </div>
+                    <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
+                        <div style='background-color: #d6b346; width: 24px; height: 24px; border-radius: 8px;'></div>
+                        <div style='text-align: center; color: #d6b346; font-size: 24px; font-weight: bold;'>
+                            Fiber break occurs
+                        </div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
