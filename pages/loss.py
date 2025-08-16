@@ -158,14 +158,20 @@ class CoreAnalyzer(EOLAnalyzer):
             status = CoreAnalyzer.getColorCondition(loss_values[i // 2])
             color = LossAnalyzer.getColor(status)
 
+            merged_cells = ""
+            if i % 2:
+                merged_cells = f"""
+                    <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center; {color}' rowspan=2>
+                        {"{:.2f}".format(loss_values[i // 2])}
+                    </td>
+                """
+
             table_body += f"""
                 <tr>
                     <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; {color}'>
                         {link_names[i]}
                     </td>
-                    <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center; {color}' rowspan=2>
-                        {"{:.2f}".format(loss_values[i // 2])}
-                    </td>
+                    {merged_cells}
                 </tr>
             """
 
