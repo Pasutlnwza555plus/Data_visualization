@@ -140,27 +140,21 @@ class CoreAnalyzer(EOLAnalyzer):
             link_names = df_eol_ref["Link Name"].to_list()
             loss_values = df_loss_between_core["Loss between core"]
 
-            table_header_html = "<tr><th>Link Name</th><th>Loss</th></tr>"
-
-            html = "<table border='1' style='border-collapse: collapse; text-align: center;'>"
-            html += table_header_html
+            html = """
+                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd;">
+                <table style="border-collapse: collapse; width: 100%; text-align: center;">
+                <tr><th style="border: 1px solid #ddd;">Link Name</th><th style="border: 1px solid #ddd;">Loss</th></tr>
+            """
 
             loss_index = 0
             for i in range(len(link_names)):
                 html += "<tr>"
-                
-                # Link Name
-                html += f"<td>{link_names[i]}</td>"
-                
-                # Loss column: only add for even index and set rowspan=2
+                html += f"<td style='border: 1px solid #ddd;'>{link_names[i]}</td>"
                 if i % 2 == 0:
-                    html += f"<td rowspan='2'>{loss_values[loss_index]}</td>"
+                    html += f"<td style='border: 1px solid #ddd;' rowspan='2'>{loss_values[loss_index]}</td>"
                     loss_index += 1
-                
                 html += "</tr>"
 
-            html += "</table>"
+            html += "</table></div>"
 
             st.markdown(html, unsafe_allow_html=True)
-
-            # st.dataframe(df_loss_between_core)
