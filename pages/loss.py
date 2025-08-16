@@ -129,6 +129,47 @@ class CoreAnalyzer(EOLAnalyzer):
         df_loss_between_core["Loss between core"] = loss_between_core
 
         return df_loss_between_core
+    
+    def st_dataframe_with_rowspan(link_names, loss_values, span=2, height=400, width=380) -> str:
+        html = f"""
+        <div style="
+            max-height: {height}px; 
+            overflow-y: auto; 
+            border: 1px solid rgba(250, 250, 250, 0.1); 
+            border-radius: 0.5rem;
+            width: {width}px;
+            box-sizing: border-box;
+        ">
+            <table style="
+                border-collapse: collapse; 
+                width: 100%; 
+                text-align: left; 
+                font-family: 'Source Sans', sans-serif;
+                font-size: 14px;
+            ">
+            <thead style="background-color: rgba(26,28,36,1); color: #fafafa;">
+                <tr>
+                    <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Link Name</th>
+                    <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Loss</th>
+                </tr>
+            </thead>
+            <tbody style="background-color: #0e1117; color: #fafafa;">
+        """
+
+        loss_index = 0
+        for i in range(len(link_names)):
+            html += "<tr>"
+            # Link Name
+            html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;'>{link_names[i]}</td>"
+            # Loss column, only insert every `span` rows
+            if i % span == 0:
+                html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center;' rowspan='{span}'>{loss_values[loss_index]}</td>"
+                loss_index += 1
+            html += "</tr>"
+
+        html += "</tbody></table></div>"
+
+        return html
 
     def process(self):
         if self.df_ref is not None and self.df_raw_data is not None:
@@ -140,21 +181,23 @@ class CoreAnalyzer(EOLAnalyzer):
             link_names = df_eol_ref["Link Name"].to_list()
             loss_values = df_loss_between_core["Loss between core"]
 
-            html = """
-                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd;">
-                <table style="border-collapse: collapse; width: 100%; text-align: center;">
-                <tr><th style="border: 1px solid #ddd;">Link Name</th><th style="border: 1px solid #ddd;">Loss</th></tr>
-            """
+            # html = """
+            #     <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd;">
+            #     <table style="border-collapse: collapse; width: 100%; text-align: center;">
+            #     <tr><th style="border: 1px solid #ddd;">Link Name</th><th style="border: 1px solid #ddd;">Loss</th></tr>
+            # """
 
-            loss_index = 0
-            for i in range(len(link_names)):
-                html += "<tr>"
-                html += f"<td style='border: 1px solid #ddd;'>{link_names[i]}</td>"
-                if i % 2 == 0:
-                    html += f"<td style='border: 1px solid #ddd;' rowspan='2'>{loss_values[loss_index]}</td>"
-                    loss_index += 1
-                html += "</tr>"
+            # loss_index = 0
+            # for i in range(len(link_names)):
+            #     html += "<tr>"
+            #     html += f"<td style='border: 1px solid #ddd;'>{link_names[i]}</td>"
+            #     if i % 2 == 0:
+            #         html += f"<td style='border: 1px solid #ddd;' rowspan='2'>{loss_values[loss_index]}</td>"
+            #         loss_index += 1
+            #     html += "</tr>"
 
-            html += "</table></div>"
+            # html += "</table></div>"
+
+            html = self.st_dataframe_with_rowspan(link_names, loss_values)
 
             st.markdown(html, unsafe_allow_html=True)
