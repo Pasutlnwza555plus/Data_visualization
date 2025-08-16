@@ -150,7 +150,7 @@ class CoreAnalyzer(EOLAnalyzer):
     
     @staticmethod
     def getColorCondition(value, threshold = 2) -> str:
-        if value != "--":
+        if value == "--":
             return "flapping"
         elif value > threshold:
             return "error"
