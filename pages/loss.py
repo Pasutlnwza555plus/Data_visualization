@@ -160,11 +160,15 @@ class CoreAnalyzer(EOLAnalyzer):
             status = CoreAnalyzer.getColorCondition(loss_values[i // 2])
             color = LossAnalyzer.getColor(status)
 
+            formated_value = loss_values[i // 2]
+            if isinstance(formated_value, float) and not math.isnan(formated_value):
+                formated_value = "{:.2f}".format(loss_values[i // 2])
+
             merged_cells = ""
             if i % 2 == 0:
                 merged_cells = f"""
                     <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center; {color}' rowspan=2>
-                        {"{:.2f}".format(loss_values[i // 2])}
+                        {formated_value}
                     </td>
                 """.strip()
 
