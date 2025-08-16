@@ -178,7 +178,7 @@ class CoreAnalyzer(EOLAnalyzer):
         return table_body
     
     def build_loss_table(self, link_names, loss_values) -> str:
-        table_body = self.build_loss_table_data(link_names, loss_values)
+        table_body = self.build_loss_table_body(link_names, loss_values)
 
         html = f"""
             <div style="
