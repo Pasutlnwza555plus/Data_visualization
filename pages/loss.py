@@ -150,7 +150,7 @@ class EOLAnalyzer(LossAnalyzer):
                 placeholder="Choose options"
             )
 
-            print (selected_me_name)
+            st.markdown(selected_me_name)
 
             df_filtered = self.get_filtered_result(df_result, selected_me_name)
 
