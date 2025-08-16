@@ -139,7 +139,6 @@ class EOLAnalyzer(LossAnalyzer):
         mask = df_result["Link Name"].astype(str).str.contains(selected_me_name, na=False)
         return df_result[mask].reset_index(drop=True)
     
-    @staticmethod
     def get_selected_me_name(self, df_result):
         me_names = self.get_me_names(df_result)
 
@@ -253,7 +252,7 @@ class CoreAnalyzer(EOLAnalyzer):
 
     def process(self):
         if self.df_ref is not None and self.df_raw_data is not None:
-            df_result = super().build_result_df() 
+            df_result = self.build_result_df() 
 
             selected_me_name = self.get_selected_me_name(df_result)
             df_filtered = self.get_filtered_result(df_result, selected_me_name)
