@@ -156,7 +156,7 @@ class CoreAnalyzer(EOLAnalyzer):
 
         loss_index = 0
         for i in range(len(link_names)):
-            status = CoreAnalyzer.getColorCondition(loss_values[loss_index], 2)
+            status = CoreAnalyzer.getColorCondition(loss_values[loss_index])
             color = LossAnalyzer.getColor(status)
 
             table_body += "<tr>"
@@ -218,7 +218,7 @@ class CoreAnalyzer(EOLAnalyzer):
             df_loss_between_core = self.calculate_loss_between_core(df_result)
 
             link_names = df_eol_ref["Link Name"].to_list()
-            loss_values = df_loss_between_core["Loss between core"]
+            loss_values = df_loss_between_core["Loss between core"].to_list()
 
             html = self.build_loss_table(link_names, loss_values)
 
