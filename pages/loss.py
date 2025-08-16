@@ -150,6 +150,8 @@ class EOLAnalyzer(LossAnalyzer):
                 placeholder="Choose options"
             )
 
+            print (selected_me_name)
+
             df_filtered = self.get_filtered_result(df_result, selected_me_name)
 
             st.dataframe(df_filtered.style.apply(self.isDiffError, axis=1), hide_index=True)
