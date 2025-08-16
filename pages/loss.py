@@ -114,18 +114,30 @@ class EOLAnalyzer(LossAnalyzer):
     
     def build_result_df(self):
         if self.df_ref is not None and self.df_raw_data is not None:
-            df_eol_ref: pd.DataFrame = super().extract_eol_ref(self.df_ref)
+            df_eol_ref: pd.DataFrame = self.extract_eol_ref(self.df_ref)
             df_atten: pd.DataFrame   = self.extract_raw_data(self.df_raw_data)
 
             joined_df = df_eol_ref.join(df_atten.set_index("Link Name"), on="Link Name")
             df_result = self.calculate_eol_diff(joined_df)
 
         return df_result
+    
+    def get_me_names(self, df_result: pd.DataFrame) -> list[str]:
+        me_names = df_result["Link Name"]
+
+        return me_names
 
     def process(self):
         if self.df_ref is not None and self.df_raw_data is not None:
             df_result = self.build_result_df()
+            me_names = self.get_me_names(df_result)
 
+            st.selectbox(
+                "Managed Element",
+                me_names,
+                index=None,
+                placeholder="Choose options"
+            )
             st.dataframe(df_result.style.apply(self.isDiffError, axis=1), hide_index=True)
 
             self.draw_color_legend()
