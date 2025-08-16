@@ -130,14 +130,13 @@ class CoreAnalyzer(EOLAnalyzer):
 
         return df_loss_between_core
     
-    def st_dataframe_with_rowspan(self, link_names, loss_values, span=2, height=400, width=380) -> str:
+    def st_dataframe_with_rowspan(self, link_names, loss_values, span=2, height=600, width=380) -> str:
         html = f"""
         <div style="
             max-height: {height}px; 
-            overflow-y: auto; 
+            overflow-y: hidden; 
             border: 1px solid rgba(250, 250, 250, 0.1); 
             border-radius: 0.5rem;
-            width: {width}px;
             box-sizing: border-box;
         ">
             <table style="
@@ -147,7 +146,7 @@ class CoreAnalyzer(EOLAnalyzer):
                 font-family: 'Source Sans', sans-serif;
                 font-size: 14px;
             ">
-            <thead style="background-color: rgba(26,28,36,1); color: #fafafa;">
+            <thead style="background-color: rgba(26,28,36,1); color: #fafafa; padding-y: 1px">
                 <tr>
                     <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Link Name</th>
                     <th style="border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;">Loss</th>
