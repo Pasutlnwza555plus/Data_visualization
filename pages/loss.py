@@ -1,3 +1,4 @@
+import math
 import streamlit as st
 import pandas as pd
 
@@ -28,11 +29,23 @@ class LossAnalyzer:
 
     @staticmethod
     def isDiffError(row):
-        color = [''] * len(row)
+        status = ""
         if float(row["Loss current - Loss EOL"]) >= 2:
-            color = ['background-color: #ff4d4d; color: white'] * len(row)
+            status = "error"
         elif row["Remark"].strip() != "":
-            color = ['background-color: #d6b346; color: white'] * len(row)
+            status = "flapping"
+
+        color_style = LossAnalyzer.getColor(status)
+        return [color_style] * len(row)
+    
+    @staticmethod
+    def getColor(status: str) -> str:
+        color = ''
+        if status == "error":
+            color = 'background-color: #ff4d4d; color: white;'
+        elif status == "flapping":
+            color = 'background-color: #d6b346; color: white;'
+        
         return color
 
     @staticmethod
@@ -123,12 +136,21 @@ class CoreAnalyzer(EOLAnalyzer):
     def calculate_loss_between_core(self, df_result: pd.DataFrame) -> pd.DataFrame:
         forward_direction = df_result["Loss current - Loss EOL"].iloc[::2].values
         reverse_direction = df_result["Loss current - Loss EOL"].iloc[1::2].values
-        loss_between_core = ["{:.2f}".format(abs(f - r), 2) for f, r in zip(forward_direction, reverse_direction)]
+        loss_between_core = [abs(f - r) for f, r in zip(forward_direction, reverse_direction)]
 
         df_loss_between_core = pd.DataFrame()
         df_loss_between_core["Loss between core"] = loss_between_core
 
         return df_loss_between_core
+    
+    @staticmethod
+    def getColorCondition(value, threshold=2) -> str:
+        if value is None or (isinstance(value, float) and math.isnan(value)):
+            return "flapping"
+        elif value > threshold:
+            return "error"
+        return ""
+
     
     def build_loss_table(self, link_names, loss_values) -> str:
         html = f"""
@@ -157,10 +179,22 @@ class CoreAnalyzer(EOLAnalyzer):
 
         loss_index = 0
         for i in range(len(link_names)):
+            status = CoreAnalyzer.getColorCondition(loss_values[loss_index])
+            color = LossAnalyzer.getColor(status)
+
             html += "<tr>"
-            html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px;'>{link_names[i]}</td>"
+            html += f"""
+                <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; {color}'>
+                    {link_names[i]}
+                </td>
+            """
+
             if i % 2 == 0:
-                html += f"<td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center;' rowspan=2>{loss_values[loss_index]}</td>"
+                html += f"""
+                    <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center; {color}' rowspan=2>
+                        {"{:.2f}".format(loss_values[loss_index])}
+                    </td>
+                """
                 loss_index += 1
             html += "</tr>"
 
@@ -177,23 +211,6 @@ class CoreAnalyzer(EOLAnalyzer):
 
             link_names = df_eol_ref["Link Name"].to_list()
             loss_values = df_loss_between_core["Loss between core"]
-
-            # html = """
-            #     <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd;">
-            #     <table style="border-collapse: collapse; width: 100%; text-align: center;">
-            #     <tr><th style="border: 1px solid #ddd;">Link Name</th><th style="border: 1px solid #ddd;">Loss</th></tr>
-            # """
-
-            # loss_index = 0
-            # for i in range(len(link_names)):
-            #     html += "<tr>"
-            #     html += f"<td style='border: 1px solid #ddd;'>{link_names[i]}</td>"
-            #     if i % 2 == 0:
-            #         html += f"<td style='border: 1px solid #ddd;' rowspan='2'>{loss_values[loss_index]}</td>"
-            #         loss_index += 1
-            #     html += "</tr>"
-
-            # html += "</table></div>"
 
             html = self.build_loss_table(link_names, loss_values)
 
