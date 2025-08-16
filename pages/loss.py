@@ -109,4 +109,4 @@ class EOLAnalyzer(LossAnalyzer):
 class CoreAnalyzer(EOLAnalyzer):
 
     def process(self):
-        super().process(self)
+        super().process()
