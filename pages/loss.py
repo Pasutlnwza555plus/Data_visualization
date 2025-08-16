@@ -177,7 +177,7 @@ class CoreAnalyzer(EOLAnalyzer):
 
         df_loss_between_core = pd.DataFrame()
         df_loss_between_core["Link Name"] = df_result["Link Name"]
-        df_loss_between_core["Loss between core"] = loss_between_core
+        df_loss_between_core["Loss between core"] = [x for x in loss_between_core for _ in range(2)]
 
         return df_loss_between_core
     
@@ -193,26 +193,21 @@ class CoreAnalyzer(EOLAnalyzer):
         table_body = ""
 
         for i in range(len(link_names)):
-            status = CoreAnalyzer.getColorCondition(loss_values[i // 2])
+            status = CoreAnalyzer.getColorCondition(loss_values[i])
             color = LossAnalyzer.getColor(status)
-
-            merged_cells = ""
-            if i % 2 == 0:
-                formated_value = loss_values[i // 2]
-                if formated_value != "--":
-                    formated_value = "{:.2f}".format(loss_values[i // 2])
-                    
-                merged_cells = f"""
-                    <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center; {color}' rowspan=2>
-                        {formated_value}
-                    </td>
-                """.strip()
+            
+            formated_value = loss_values[i]
+            if formated_value != "--":
+                formated_value = "{:.2f}".format(loss_values[i])
 
             table_body += f"""
                 <tr>
                     <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; {color}'>
                         {link_names[i]}
-                    </td>{merged_cells}
+                    </td>
+                    <td style='border: 1px solid rgba(250,250,250,0.1); padding: 4px 8px; text-align: center; {color}' rowspan=2>
+                        {formated_value}
+                    </td>
                 </tr>
             """.strip()
 
