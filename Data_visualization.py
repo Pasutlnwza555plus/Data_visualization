@@ -6,15 +6,19 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 
 from components.loss import EOLAnalyzer, CoreAnalyzer
+from components.uploader import ExcelUploader
 from services.database import Database
+from services.session import SessionStateEnum, SessionStateManager
+
+database = Database()
+session = SessionStateManager(st.session_state)
+uploader = ExcelUploader(session)
+
+session[SessionStateEnum.REFERENCE_SHEET] = database.get_reference_sheet()
 
 st.set_page_config(layout="wide")
 
 pd.set_option("styler.render.max_elements", 1_200_000)
-
-database_service = Database()
-
-st.session_state.reference_sheet = database_service.get_reference_sheet()
 
 #filter
 def cascading_filter(
@@ -164,7 +168,19 @@ def evaluate_preset_status(cb: CallBlock) -> Dict[str, Any]:
     }
 
 # Sidebar
-menu = st.sidebar.radio("เลือกกิจกรรม", ["หน้าแรก","CPU","FAN","MSU","Line board","Client board","Fiber Flapping","Loss between Core","Loss between EOL","Preset status","Reference Sheet"])
+menu = st.sidebar.radio("เลือกกิจกรรม", [
+    "หน้าแรก",
+    "CPU",
+    "FAN",
+    "MSU",
+    "Line board",
+    "Client board",
+    "Fiber Flapping",
+    "Loss between Core",
+    "Loss between EOL",
+    "Preset status",
+    "Reference Sheet",
+])
 
 if menu == "หน้าแรก":
     st.subheader("DWDM Monitoring Dashboard")
@@ -1170,16 +1186,11 @@ elif menu == "Preset status":
 elif menu == "Loss between EOL":
     st.markdown("### Please upload files")
 
-    uploaded_raw_eol = st.file_uploader("Upload Raw Optical Attenuation", type=["xlsx"], key="raw_optical_atten")
-    if uploaded_raw_eol:
-        df_raw_data = pd.read_excel(uploaded_raw_eol)
-
-        st.session_state.raw_eol_data = df_raw_data
-        st.success("Raw Data File Uploaded")
+    uploader.upload("Raw Optical Attenuation", SessionStateEnum.EOL_DATA)
 
     analyzer = EOLAnalyzer(
-        st.session_state.get("reference_sheet"), 
-        st.session_state.get("raw_eol_data"),
+        session[SessionStateEnum.REFERENCE_SHEET], 
+        session[SessionStateEnum.EOL_DATA],
     )
 
     analyzer.process()
@@ -1188,21 +1199,17 @@ elif menu == "Loss between EOL":
 elif menu == "Loss between Core":
     st.markdown("### Please upload files")
 
-    uploaded_raw_eol = st.file_uploader("Upload Raw Optical Attenuation", type=["xlsx"], key="raw_optical_atten")
-    if uploaded_raw_eol:
-        df_raw_data = pd.read_excel(uploaded_raw_eol)
-
-        st.session_state.raw_eol_data = df_raw_data
-        st.success("Raw Data File Uploaded")
+    uploader.upload("Raw Optical Attenuation", SessionStateEnum.EOL_DATA)
 
     analyzer = CoreAnalyzer(
-        st.session_state.get("reference_sheet"), 
-        st.session_state.get("raw_eol_data"),
+        session[SessionStateEnum.REFERENCE_SHEET], 
+        session[SessionStateEnum.EOL_DATA],
     )
 
     analyzer.process()
 
+# region Reference Sheet
 elif menu == "Reference Sheet":
     st.markdown("### Reference Sheet")
 
-    st.dataframe(st.session_state.get("reference_sheet"), height=700)
+    st.dataframe(session[SessionStateEnum.REFERENCE_SHEET], height=700)
