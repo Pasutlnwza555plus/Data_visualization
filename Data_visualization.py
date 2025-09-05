@@ -2,16 +2,19 @@ import streamlit as st
 import pandas as pd
 import re
 import plotly.express as px
-from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 
 from pages.loss import EOLAnalyzer, CoreAnalyzer
+from services.database import Database
 
 st.set_page_config(layout="wide")
 
 pd.set_option("styler.render.max_elements", 1_200_000)
 
+database_service = Database()
+
+st.session_state.reference_sheet = database_service.get_reference_sheet()
 
 #filter
 def cascading_filter(
@@ -1175,7 +1178,7 @@ elif menu == "Loss between EOL":
         st.success("Raw Data File Uploaded")
 
     analyzer = EOLAnalyzer(
-        st.session_state.get("core_eol_reference_sheet"), 
+        st.session_state.get("reference_sheet"), 
         st.session_state.get("raw_eol_data"),
     )
 
@@ -1193,20 +1196,24 @@ elif menu == "Loss between Core":
         st.success("Raw Data File Uploaded")
 
     analyzer = CoreAnalyzer(
-        st.session_state.get("core_eol_reference_sheet"), 
+        st.session_state.get("reference_sheet"), 
         st.session_state.get("raw_eol_data"),
     )
 
     analyzer.process()
 
 elif menu == "Reference Sheet":
-    st.markdown("### Please upload files")
+    st.markdown("### Reference Sheet")
 
-    Core_EOL_reference_sheet_name = "Loss between core & EOL"
-    uploaded_reference = st.file_uploader("Upload Reference Sheet for Core & EOL loss", type=["xlsx"], key="core_eol_ref")
+    st.dataframe(st.session_state.get("reference_sheet"), height=700)
 
-    if uploaded_reference:
-        df_ref_sheet = pd.read_excel(uploaded_reference, sheet_name=Core_EOL_reference_sheet_name)
+    # st.markdown("### Please upload files")
 
-        st.session_state.core_eol_reference_sheet = df_ref_sheet
-        st.success("Reference Sheet File Uploaded")
+    # reference_sheet_name = "Loss between core & EOL"
+    # uploaded_reference = st.file_uploader("Upload Reference Sheet for Core & EOL loss", type=["xlsx"], key="core_eol_ref")
+
+    # if uploaded_reference:
+    #     df_ref_sheet = pd.read_excel(uploaded_reference, sheet_name=reference_sheet_name)
+
+    #     st.session_state.reference_sheet = df_ref_sheet
+    #     st.success("Reference Sheet File Uploaded")

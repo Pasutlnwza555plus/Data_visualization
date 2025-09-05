@@ -67,19 +67,6 @@ class LossAnalyzer:
             </div>
         """, unsafe_allow_html=True)
 
-    # Base data extraction
-    @staticmethod
-    def extract_eol_ref(df_ref: pd.DataFrame) -> pd.DataFrame:
-        df_eol_ref = pd.DataFrame()
-        eol_ref_columns = df_ref.columns[df_ref.iloc[0] == "EOL(dB)"]
-        eol_ref_columns_float = pd.to_numeric(df_ref[eol_ref_columns[0]], downcast="float", errors="coerce")
-
-        df_eol_ref["Link Name"] = df_ref['140.1'].iloc[1:]
-        df_eol_ref["EOL(dB)"] = eol_ref_columns_float
-
-        return df_eol_ref
-
-    # Abstract placeholder (children must override)
     def process(self):
         raise NotImplementedError("Each analyzer must implement its own process()")
 
@@ -114,10 +101,9 @@ class EOLAnalyzer(LossAnalyzer):
     
     def build_result_df(self):
         if self.df_ref is not None and self.df_raw_data is not None:
-            df_eol_ref: pd.DataFrame = self.extract_eol_ref(self.df_ref)
             df_atten: pd.DataFrame   = self.extract_raw_data(self.df_raw_data)
 
-            joined_df = df_eol_ref.join(df_atten.set_index("Link Name"), on="Link Name")
+            joined_df = self.df_ref.join(df_atten.set_index("Link Name"), on="Link Name")
             df_result = self.calculate_eol_diff(joined_df)
 
         return df_result
