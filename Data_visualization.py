@@ -3,9 +3,9 @@ import pandas as pd
 import re
 import plotly.express as px
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Type, Union
 
-from components.loss import EOLAnalyzer, CoreAnalyzer
+from components.loss import LossAnalyzer, EOLAnalyzer, CoreAnalyzer
 from components.uploader import ExcelUploader
 from services.database import Database
 from services.session import SessionStateEnum, SessionStateManager
@@ -176,8 +176,7 @@ menu = st.sidebar.radio("เลือกกิจกรรม", [
     "Line board",
     "Client board",
     "Fiber Flapping",
-    "Loss between Core",
-    "Loss between EOL",
+    "Loss between Core & EOL",
     "Preset status",
     "Reference Sheet",
 ])
@@ -1182,27 +1181,24 @@ elif menu == "Preset status":
 
                 
 
-# region Loss between EOL
-elif menu == "Loss between EOL":
+# region Loss between Core and EOL
+elif menu == "Loss between Core & EOL":
     st.markdown("### Please upload files")
 
     uploader.upload("Raw Optical Attenuation", SessionStateEnum.EOL_DATA)
 
-    analyzer = EOLAnalyzer(
-        session[SessionStateEnum.REFERENCE_SHEET], 
-        session[SessionStateEnum.EOL_DATA],
+    analysis_type = st.radio(
+        "Choose analysis type:",
+        ["Loss between Core", "Loss between EOL"],
     )
 
-    analyzer.process()
-    
-# region Loss Between Core
-elif menu == "Loss between Core":
-    st.markdown("### Please upload files")
+    analyzer_class: dict[str, Type[LossAnalyzer]] = {
+        "Loss between EOL": EOLAnalyzer,
+        "Loss between Core": CoreAnalyzer,
+    }
 
-    uploader.upload("Raw Optical Attenuation", SessionStateEnum.EOL_DATA)
-
-    analyzer = CoreAnalyzer(
-        session[SessionStateEnum.REFERENCE_SHEET], 
+    analyzer = analyzer_class[analysis_type](
+        session[SessionStateEnum.REFERENCE_SHEET],
         session[SessionStateEnum.EOL_DATA],
     )
 
@@ -1212,4 +1208,4 @@ elif menu == "Loss between Core":
 elif menu == "Reference Sheet":
     st.markdown("### Reference Sheet")
 
-    st.dataframe(session[SessionStateEnum.REFERENCE_SHEET], height=700)
+    st.dataframe(session[SessionStateEnum.REFERENCE_SHEET], height=700, hide_index=True)
