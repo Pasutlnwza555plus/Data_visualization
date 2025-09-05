@@ -1206,14 +1206,3 @@ elif menu == "Reference Sheet":
     st.markdown("### Reference Sheet")
 
     st.dataframe(st.session_state.get("reference_sheet"), height=700)
-
-    # st.markdown("### Please upload files")
-
-    # reference_sheet_name = "Loss between core & EOL"
-    # uploaded_reference = st.file_uploader("Upload Reference Sheet for Core & EOL loss", type=["xlsx"], key="core_eol_ref")
-
-    # if uploaded_reference:
-    #     df_ref_sheet = pd.read_excel(uploaded_reference, sheet_name=reference_sheet_name)
-
-    #     st.session_state.reference_sheet = df_ref_sheet
-    #     st.success("Reference Sheet File Uploaded")
