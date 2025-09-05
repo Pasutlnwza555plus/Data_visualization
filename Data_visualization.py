@@ -5,7 +5,7 @@ import plotly.express as px
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 
-from pages.loss import EOLAnalyzer, CoreAnalyzer
+from components.loss import EOLAnalyzer, CoreAnalyzer
 from services.database import Database
 
 st.set_page_config(layout="wide")
