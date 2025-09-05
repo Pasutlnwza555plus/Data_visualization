@@ -1,10 +1,11 @@
+from abc import ABC, abstractmethod
 import math
 import streamlit as st
 import pandas as pd
 
 
 # region Base Analyzer for Loss
-class LossAnalyzer:
+class LossAnalyzer(ABC):
     def __init__(
         self, 
         df_ref: pd.DataFrame | None = None, 
@@ -26,17 +27,25 @@ class LossAnalyzer:
     def countDay(df_ref: pd.DataFrame):
         days = (len(df_ref.columns) - 11) / 4
         return int(days)
-
+    
     @staticmethod
-    def isDiffError(row):
-        status = ""
-        if float(row["Loss current - Loss EOL"]) >= 2:
-            status = "error"
-        elif row["Remark"].strip() != "":
-            status = "flapping"
+    def getStatus(value, threshold = 2) -> str:
+        if pd.isna(value) or value in ["--", None]:
+            return "flapping"
+        elif pd.notna(value) and value >= threshold:
+            return "error"
+        
+        return ""
+    
+    @staticmethod
+    def get_sort_priority(row, col_name: str = None):
+        status = LossAnalyzer.getStatus(row[col_name] if col_name else row)
+        statusMap = {
+            "error": 0,
+            "flapping": 1,
+        }
 
-        color_style = LossAnalyzer.getColor(status)
-        return [color_style] * len(row)
+        return statusMap.get(status, 10)
     
     @staticmethod
     def getColor(status: str) -> str:
@@ -49,30 +58,39 @@ class LossAnalyzer:
         return color
 
     @staticmethod
-    def draw_color_legend():
-        st.markdown("""
+    def getColorRow(row):
+        status = LossAnalyzer.getStatus(row["Loss current - Loss EOL"])
+
+        color_style = LossAnalyzer.getColor(status)
+        return [color_style] * len(row)
+
+    @staticmethod
+    def draw_color_legend(legend_type="eol"):
+        if legend_type == "eol":
+            error_label = "EOL not OK"
+            flapping_label = "Fiber break occurs"
+        else:
+            error_label = "Loss not OK"
+            flapping_label = "Fiber break occurs"
+            
+        st.markdown(f"""
             <div style='display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 1rem'>
                 <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
                     <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 8px;'></div>
                     <div style='text-align: center; color: #ff4d4d; font-size: 24px; font-weight: bold;'>
-                        EOL not OK 
+                        {error_label}
                     </div>
                 </div>
                 <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
                     <div style='background-color: #d6b346; width: 24px; height: 24px; border-radius: 8px;'></div>
                     <div style='text-align: center; color: #d6b346; font-size: 24px; font-weight: bold;'>
-                        Fiber break occurs
+                        {flapping_label}
                     </div>
                 </div>
             </div>
         """, unsafe_allow_html=True)
 
-    def process(self):
-        raise NotImplementedError("Each analyzer must implement its own process()")
-
-
-# region Analyzer for EOL
-class EOLAnalyzer(LossAnalyzer):
+    # ------- Common Data Processing Methods -------
     def extract_raw_data(self, df_raw_data: pd.DataFrame) -> pd.DataFrame:
         df_raw_data.columns = df_raw_data.columns.str.strip()
         df_atten = pd.DataFrame()
@@ -101,7 +119,7 @@ class EOLAnalyzer(LossAnalyzer):
     
     def build_result_df(self):
         if self.df_ref is not None and self.df_raw_data is not None:
-            df_atten: pd.DataFrame   = self.extract_raw_data(self.df_raw_data)
+            df_atten: pd.DataFrame = self.extract_raw_data(self.df_raw_data)
 
             joined_df = self.df_ref.join(df_atten.set_index("Link Name"), on="Link Name")
             df_result = self.calculate_eol_diff(joined_df)
@@ -109,11 +127,12 @@ class EOLAnalyzer(LossAnalyzer):
         return df_result
     
     def get_me_names(self, df_result: pd.DataFrame) -> list[str]:
-        link_names = df_result["Link Name"].tolist()
+        link_names: list[str] = df_result["Link Name"].tolist()
         me_names = [ link_name.split("-")[0] for link_name in link_names ]
 
         return me_names
     
+    @staticmethod
     def is_correct_me(row: pd.Series, me_name: str) -> bool:
         link_name = row["Link Name"]
         return me_name in link_name
@@ -124,6 +143,14 @@ class EOLAnalyzer(LossAnalyzer):
         
         mask = df_result["Link Name"].astype(str).str.contains(selected_me_name, na=False)
         return df_result[mask].reset_index(drop=True)
+    
+    def sort_df(self, df: pd.DataFrame) -> pd.DataFrame:
+        filtered_df = df.copy()
+        filtered_df["_sort_priority"] = filtered_df.apply(lambda row: LossAnalyzer.get_sort_priority(row, "Loss current - Loss EOL"), axis=1)
+        sorted_df = filtered_df.sort_values("_sort_priority").drop("_sort_priority", axis=1).reset_index(drop=True)
+        
+        return sorted_df
+
     
     def get_selected_me_name(self, df_result):
         me_names = self.get_me_names(df_result)
@@ -137,20 +164,28 @@ class EOLAnalyzer(LossAnalyzer):
 
         return selected_me_name
 
+    @abstractmethod
+    def process(self):
+        raise NotImplementedError("Each analyzer must implement its own process()")
+
+
+# region Analyzer for EOL
+class EOLAnalyzer(LossAnalyzer):
     def process(self):
         if self.df_ref is not None and self.df_raw_data is not None:
             df_result = self.build_result_df()
 
             selected_me_name = self.get_selected_me_name(df_result)
             df_filtered = self.get_filtered_result(df_result, selected_me_name)
+            df_sorted = self.sort_df(df_filtered)
 
-            st.dataframe(df_filtered.style.apply(self.isDiffError, axis=1), hide_index=True)
+            st.dataframe(df_sorted.style.apply(self.getColorRow, axis=1), hide_index=True)
 
-            self.draw_color_legend()
+            self.draw_color_legend("eol")
 
 
 # region Analyzer for Core
-class CoreAnalyzer(EOLAnalyzer):
+class CoreAnalyzer(LossAnalyzer):
     def calculate_loss_between_core(self, df_result: pd.DataFrame) -> pd.DataFrame:
         forward_direction = df_result["Loss current - Loss EOL"].iloc[::2].values
         reverse_direction = df_result["Loss current - Loss EOL"].iloc[1::2].values
@@ -166,20 +201,12 @@ class CoreAnalyzer(EOLAnalyzer):
         df_loss_between_core["Loss between core"] = [x for x in loss_between_core for _ in range(2)]
 
         return df_loss_between_core
-    
-    @staticmethod
-    def getColorCondition(value, threshold = 2) -> str:
-        if value == "--":
-            return "flapping"
-        elif value > threshold:
-            return "error"
-        return ""
 
     def build_loss_table_body(self, link_names, loss_values) -> str:
         table_body = ""
 
         for i in range(len(link_names)):
-            status = CoreAnalyzer.getColorCondition(loss_values[i])
+            status = LossAnalyzer.getStatus(loss_values[i])
             color = LossAnalyzer.getColor(status)
 
             merged_cells = ""
@@ -249,23 +276,8 @@ class CoreAnalyzer(EOLAnalyzer):
             link_names  = df_loss_between_core["Link Name"].tolist()
             loss_values = df_loss_between_core["Loss between core"].tolist()
 
-            html = self.build_loss_table(link_names, loss_values)
+            html = self.build_loss_table(link_names, sorted(loss_values, key=LossAnalyzer.get_sort_priority))
 
             st.markdown(html, unsafe_allow_html=True)
 
-            st.markdown("""
-                <div style='display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 1rem'>
-                    <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
-                        <div style='background-color: #ff4d4d; width: 24px; height: 24px; border-radius: 8px;'></div>
-                        <div style='text-align: center; color: #ff4d4d; font-size: 24px; font-weight: bold;'>
-                            Loss not OK 
-                        </div>
-                    </div>
-                    <div style='display: flex; justify-content: center; align-items: center; gap: 8px'>
-                        <div style='background-color: #d6b346; width: 24px; height: 24px; border-radius: 8px;'></div>
-                        <div style='text-align: center; color: #d6b346; font-size: 24px; font-weight: bold;'>
-                            Fiber break occurs
-                        </div>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
+            self.draw_color_legend("core")

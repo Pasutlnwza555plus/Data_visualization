@@ -1,4 +1,4 @@
-import streamlit as st
+from streamlit.runtime.state.session_state_proxy import SessionStateProxy
 from enum import Enum
 
 class SessionStateEnum(Enum):
@@ -6,8 +6,8 @@ class SessionStateEnum(Enum):
     EOL_DATA = "eol_data"
 
 class SessionStateManager:
-    def __init__(self, session_state):
-        self._state = session_state
+    def __init__(self, session_state: SessionStateProxy):
+        self._state: SessionStateProxy = session_state
 
     def _resolve_key(self, key):
         if not isinstance(key, SessionStateEnum):
@@ -15,7 +15,8 @@ class SessionStateManager:
         return key.value
 
     def __getitem__(self, key):
-        return self._state[self._resolve_key(key)]
+        key_name = self._resolve_key(key)
+        return self._state.get(key_name, None)
 
     def __setitem__(self, key, value):
         key_name = self._resolve_key(key)
